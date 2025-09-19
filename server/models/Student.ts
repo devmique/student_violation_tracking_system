@@ -1,0 +1,27 @@
+import mongoose, { Document, Schema, Types } from "mongoose";
+
+export interface IStudent extends Document {
+    _id: Types.ObjectId;
+    studentId: string;
+    firstName: string;
+    lastName: string;
+    course: string;
+    program: string;
+    year: number;
+    email: string;
+    createdAt: Date;
+    updatedAt: Date; 
+}
+
+const StudentSchema: Schema = new Schema<IStudent>({
+    studentId: { type: String, required: true, unique: true},
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    course: { type: String, required: true },
+    program: { type: String, required: true },
+    year: { type: Number, required: true },
+    email: { type: String, required: true, unique: true },
+}, { timestamps: true
+})
+
+export default mongoose.model<IStudent>("Student", StudentSchema)
