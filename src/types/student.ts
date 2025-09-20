@@ -19,24 +19,21 @@ export interface Violation {
   severity: ViolationSeverity;
   dateCommitted: Date;
   createdAt: Date;
-  createdBy: string; // Vice Dean or staff member
+  createdBy: string;
   notes?: string;
 }
 
 export type Course = 
   | "Information Technology"
-  | "Computer Science"
-  | "Engineering"
-  | "Education"
-  | "Business Administration";
+  | "Automotive Aftersales"
+  | "Electro Mechanic Technology"
+  | "Mechanical Technology";
+
 
 export type Program = 
-  | "BSIT"
-  | "BTVTED IT"
-  | "Diploma IT"
-  | "BSCS"
-  | "BEED"
-  | "BSBA";
+  | "BS"
+  | "BTVTED"
+  | "Diploma";
 
 export type ViolationSeverity = "Minor" | "Major" ;
 

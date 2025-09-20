@@ -8,7 +8,6 @@ import { StudentCard } from "@/components/students/StudentCard";
 import { StudentFilters } from "@/components/students/StudentFilters";
 import { ViolationModal } from "@/components/violations/ViolationModal";
 import { StudentDetailModal } from "@/components/violations/StudentDetailModal";
-import { getStudentsWithViolations, getViolationStats, mockViolations } from "@/data/mockData";
 import { StudentWithViolations, Course, Program, ViolationSeverity, ViolationData } from "@/types/student";
 import { useToast } from "@/hooks/use-toast";
 import academicHeaderImage from "@/assets/academic-header.jpg";
