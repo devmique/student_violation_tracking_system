@@ -74,7 +74,7 @@ export const StudentCard = ({ student, onViewDetails, onAddViolation }: StudentC
             <p className="text-xs font-medium text-muted-foreground">Recent Violations</p>
             <div className="space-y-1">
               {student.violations.slice(0, 2).map((violation) => (
-                <div key={violation.id} className="flex items-center justify-between">
+                <div key={violation._id} className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground truncate flex-1">
                     {violation.description}
                   </span>

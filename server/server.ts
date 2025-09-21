@@ -7,6 +7,8 @@ import Students from "./routes/students";
 import Violations from "./routes/violations";
 
 dotenv.config();
+console.log("JWT_SECRET is:", process.env.JWT_SECRET);
+
 const app:Application = express();
 app.use(cors())
 app.use(express.json());

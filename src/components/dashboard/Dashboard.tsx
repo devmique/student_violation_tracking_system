@@ -10,9 +10,13 @@ import { ViolationModal } from "@/components/violations/ViolationModal";
 import { StudentDetailModal } from "@/components/violations/StudentDetailModal";
 import { StudentWithViolations, Course, Program, ViolationSeverity, ViolationData } from "@/types/student";
 import { useToast } from "@/hooks/use-toast";
+import { StudentModal } from "@/components/students/StudentModal";
+
 import academicHeaderImage from "@/assets/academic-header.jpg";
 
 export const Dashboard = () => {
+
+  const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCourse, setSelectedCourse] = useState<Course | "All">("All");
   const [selectedProgram, setSelectedProgram] = useState<Program | "All">("All");
@@ -23,8 +27,13 @@ export const Dashboard = () => {
   const [students, setStudents] = useState<StudentWithViolations[]>([]);
   const [stats, setStats] = useState<any>(null);
 
+   const token = localStorage.getItem("token");
+   const storedUser = localStorage.getItem("user");
+   const currentUser = storedUser ? JSON.parse(storedUser) : null;
+
   const { toast } = useToast();
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL|| "http://localhost:5000/api";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+
   // Filter students based on search and filters
   const filteredStudents = useMemo(() => {
     return students.filter(student => {
@@ -44,21 +53,54 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL|| "http://localhost:5000/a
 useEffect(() => {
   const fetchData = async () => {
     try {
-      const resStudents = await fetch(`${API_BASE}/students`);
+      const resStudents = await fetch(`${API_BASE}/students`,{
+        headers: {
+          "Authorization": `Bearer ${token}`
+         }
+      });
       const dataStudents = await resStudents.json();
-      setStudents(dataStudents);
+      setStudents(Array.isArray(dataStudents) ? dataStudents : []);
 
-      const resStats = await fetch(`${API_BASE}/violations/stats`);
+      const resStats = await fetch(`${API_BASE}/violations/stats`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+         }
+      });
       const dataStats = await resStats.json();
       setStats(dataStats);
     } catch (err) {
-      console.error(err);
+       console.error("Fetch error:", err);
+      setStudents([]);
     }
   };
 
   fetchData();
 }, []);
 
+
+//Add student
+const handleAddStudent = async (studentData: any) => {
+  try {
+    const res = await fetch(`${API_BASE}/students`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(studentData),
+    });
+
+    if (!res.ok) throw new Error("Failed to add student");
+
+    // refresh student list
+    const updatedStudents = await (await fetch(`${API_BASE}/students`)).json();
+    setStudents(Array.isArray(updatedStudents) ? updatedStudents : []);
+
+    toast({
+      title: "Student Added",
+      description: `${studentData.firstName} ${studentData.lastName} has been added.`,
+    });
+  } catch (err) {
+    console.error("Error adding student:", err);
+  }
+};
 
   const handleAddViolation = (student: StudentWithViolations) => {
     setSelectedStudent(student);
@@ -76,11 +118,13 @@ const handleSubmitViolation = async (violationData: ViolationData) => {
   try {
     const res = await fetch(`${API_BASE}/violations`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+       },
       body: JSON.stringify({
         studentId: selectedStudent._id,
         ...violationData,
-        createdBy: "Vice Dean John Doe", // Replace with actual user info
+       createdBy: currentUser?.username || "Unknown User",
       }),
     });
 
@@ -101,7 +145,7 @@ const handleSubmitViolation = async (violationData: ViolationData) => {
     console.error(err);
   }
 };
-
+  
   const handleClearFilters = () => {
     setSelectedCourse("All");
     setSelectedProgram("All");
@@ -171,10 +215,19 @@ const handleSubmitViolation = async (violationData: ViolationData) => {
                   Showing {filteredStudents.length} of {students.length} students
                 </p>
               </div>
-              <Button className="bg-primary text-primary-foreground hover:bg-primary-hover transition-smooth">
-                <Plus className="h-4 w-4 mr-2" />
-                Add New Student
-              </Button>
+             <Button 
+  className="bg-primary text-primary-foreground hover:bg-primary-hover transition-smooth"
+  onClick={() => setIsStudentModalOpen(true)}
+>
+  <Plus className="h-4 w-4 mr-2" />
+  Add New Student
+</Button>
+<StudentModal
+  isOpen={isStudentModalOpen}
+  onClose={() => setIsStudentModalOpen(false)}
+  onAddStudent={handleAddStudent}
+/>
+
             </div>
 
             {/* Students Grid */}

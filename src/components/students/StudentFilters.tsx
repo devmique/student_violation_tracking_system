@@ -17,20 +17,16 @@ interface StudentFiltersProps {
 const courses: (Course | "All")[] = [
   "All",
   "Information Technology",
-  "Computer Science", 
-  "Engineering",
-  "Education",
-  "Business Administration"
+  "Automotive Aftersales",
+  "Electro Mechanic Technology",
+  "Mechanical Technology",
 ];
 
 const programs: (Program | "All")[] = [
   "All",
-  "BSIT",
-  "BTVTED IT",
-  "Diploma IT",
-  "BSCS",
-  "BEED",
-  "BSBA"
+  "BS",
+  "BTVTED",
+  "Diploma",
 ];
 
 const years: (number | "All")[] = ["All", 1, 2, 3, 4];

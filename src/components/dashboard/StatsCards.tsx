@@ -34,7 +34,6 @@ export const StatsCards = ({ stats, studentCount }: StatsCardsProps) => {
     },
     {
       title: "Severe Cases",
-      value: stats.severe.toString(),
       icon: TrendingUp,
       color: "text-danger",
       bgColor: "bg-danger/10",

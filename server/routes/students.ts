@@ -1,11 +1,25 @@
 import Student, {IStudent} from "../models/Student";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import User from "../models/User";
 import express, { Request, Response } from "express";
 const router = express.Router();
 import Violation, { IViolation } from "../models/Violation";
 import {authMiddleware} from "../middleware/auth";
+
+// POST /api/students
+router.post("/api/students", authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { firstName, lastName, studentId, course, program, year } = req.body;
+
+    const newStudent = new Student({ firstName, lastName, studentId, course, program, year });
+    await newStudent.save();
+
+    res.status(201).json(newStudent);
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to add student" });
+  }
+});
+
 
 //Get students with violation 
 router.get("/",authMiddleware, async (req: Request, res: Response) => {

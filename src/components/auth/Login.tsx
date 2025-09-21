@@ -1,10 +1,12 @@
 import { useState } from "react";
 import axios from "axios";
+import * as Label from "@radix-ui/react-label";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL|| "http://localhost:5000/api";
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
 export const Login = () => {
   const [email, setEmail] = useState("");
@@ -42,35 +44,60 @@ export const Login = () => {
   };
 
   return (
-    <div className="flex items-center justify-center mid-h-screen bg-background">
-        <Card className="w-full max-w-md shadow-lg"/>
-            <CardHeader>
-                <CardTitle className="text-center text-2xl">Login</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <form onSubmit ={handleSubmit} className="space-y-4">
-                    <Input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e)=>setEmail(e.target.value)}
-                    required/>
+    <div className="flex items-center justify-center min-h-screen bg-background">
+      <Card className="w-full max-w-md shadow-lg border border-border">
+        <CardHeader>
+          <CardTitle className="text-center text-2xl font-bold">Login</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Email */}
+            <div className="grid gap-2">
+              <Label.Root
+                htmlFor="email"
+                className="text-sm font-medium text-muted-foreground"
+              >
+                Email Address
+              </Label.Root>
+              <Input
+                id="email"
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
 
-                    <Input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e)=> setPassword(e.target.value)}
-                    required />
+            {/* Password */}
+            <div className="grid gap-2">
+              <Label.Root
+                htmlFor="password"
+                className="text-sm font-medium text-muted-foreground"
+              >
+                Password
+              </Label.Root>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
 
-                    <Button
-                    type="submit"
-                    className="w-full bg-primary text-primary-foreground hover:bg-primary-hover" 
-                    disabled={loading}>
-                        {loading ? "Logging in..." : "Login"}
-                    </Button>
-                </form>
-            </CardContent>
+            {/* Button */}
+            <Button
+              type="submit"
+              className="w-full bg-primary text-primary-foreground hover:bg-primary-hover"
+              disabled={loading}
+            >
+              {loading ? "Logging in..." : "Login"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
-  )
-}
+  );
+};
