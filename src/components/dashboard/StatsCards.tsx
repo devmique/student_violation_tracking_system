@@ -33,7 +33,7 @@ export const StatsCards = ({ stats, studentCount }: StatsCardsProps) => {
       subtitle: "New violations",
     },
     {
-      title: "Severe Cases",
+      title: "Cases",
       icon: TrendingUp,
       color: "text-danger",
       bgColor: "bg-danger/10",

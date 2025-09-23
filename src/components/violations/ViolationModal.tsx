@@ -111,7 +111,7 @@ export const ViolationModal = ({ isOpen, onClose, student, onAddViolation }: Vio
                 <SelectContent>
                   <SelectItem value="Minor">Minor</SelectItem>
                   <SelectItem value="Major">Major</SelectItem>
-                  <SelectItem value="Severe">Severe</SelectItem>
+          
                 </SelectContent>
               </Select>
             </div>

@@ -15,11 +15,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { StudentData } from "@/types/student";
 
 interface StudentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddStudent: (studentData: any) => void;
+  onAddStudent: (studentData: StudentData) => void;
 }
 
 const courses = [
@@ -39,9 +40,12 @@ export const StudentModal = ({
   onAddStudent,
 }: StudentModalProps) => {
   const [formData, setFormData] = useState({
+       studentId: "",
     firstName: "",
+    middlename:"",
     lastName: "",
-    studentId: "",
+ 
+    email: "",
     course: "",
     program: "",
     year: "",
@@ -64,22 +68,31 @@ export const StudentModal = ({
         </DialogHeader>
 
         <div className="space-y-3">
-          <Input
-            placeholder="First Name"
-            value={formData.firstName}
-            onChange={(e) => handleChange("firstName", e.target.value)}
-          />
-          <Input
-            placeholder="Last Name"
-            value={formData.lastName}
-            onChange={(e) => handleChange("lastName", e.target.value)}
-          />
-          <Input
+               <Input
             placeholder="Student ID"
             value={formData.studentId}
             onChange={(e) => handleChange("studentId", e.target.value)}
           />
-
+          <Input
+            placeholder="First Name"
+            value={formData.firstName}
+            onChange={(e) => handleChange("firstName", e.target.value)}
+            />
+          <Input
+            placeholder="Middle Name"
+            value={formData.middlename}
+            onChange={(e) => handleChange("middlename", e.target.value) }
+            />
+          <Input
+            placeholder="Last Name"
+            value={formData.lastName}
+            onChange={(e) => handleChange("lastName", e.target.value)}
+            />
+          <Input
+            placeholder="Email"
+            value={formData.email}
+            onChange={(e) => handleChange("email", e.target.value)}
+       />
           {/* Course Select */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-muted-foreground">

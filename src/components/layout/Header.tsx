@@ -1,4 +1,4 @@
-import { Search, Bell, Settings, User } from "lucide-react";
+import { Search,  LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
@@ -10,6 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import logo from "@/assets/DON-BOSCO-COLLEGE-LOGO.png"
+
 interface HeaderProps {
   onSearch: (query: string) => void;
   searchQuery: string;
@@ -19,6 +21,10 @@ const handleLogout = () =>{
   localStorage.removeItem("user");
   window.location.href = "/login"
 }
+const storedUser = localStorage.getItem("user");
+const currentUser = storedUser ? JSON.parse(storedUser) : { username: "Guest" };
+
+
 export const Header = ({ onSearch, searchQuery }: HeaderProps) => {
   return (
     <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b shadow-soft">
@@ -27,11 +33,12 @@ export const Header = ({ onSearch, searchQuery }: HeaderProps) => {
           {/* Logo and Title */}
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 gradient-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">SV</span>
+              <div className="w-10 h-10  rounded-lg flex items-center justify-center">
+                <img src={logo} alt="logo" />
+      
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground">Student Violations</h1>
+                <h1 className="text-xl font-bold text-foreground">DBC Violation Tracker</h1>
                 <p className="text-sm text-muted-foreground">Academic Tracking System</p>
               </div>
             </div>
@@ -53,14 +60,14 @@ export const Header = ({ onSearch, searchQuery }: HeaderProps) => {
           {/* Actions */}
           <div className="flex items-center space-x-3">
             <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-4 w-4" />
-              <span className="absolute -top-1 -right-1 h-3 w-3 bg-danger rounded-full text-xs"></span>
+             
+        
             </Button>
             
             <ThemeToggle />
             
             <Button variant="ghost" size="icon">
-              <Settings className="h-4 w-4" />
+              <LogOut className="h-4 w-4" />
             </Button>
 
             <div className="flex items-center space-x-2 pl-3 border-l">
@@ -78,8 +85,8 @@ export const Header = ({ onSearch, searchQuery }: HeaderProps) => {
                 </User>
               </div>
               <div className="hidden md:block">
-                <p className="text-sm font-medium">Vice Dean Johnson</p>
-                <p className="text-xs text-muted-foreground">Administrator</p>
+                <p className="text-sm font-medium">{currentUser.username}</p>
+                <p className="text-xs text-muted-foreground">Vice Dean of Student Affairs</p>
               </div>
             </div>
           </div>

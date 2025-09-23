@@ -105,7 +105,7 @@ export const StudentDetailModal = ({ isOpen, onClose, student, onAddViolation }:
                 <ScrollArea className="h-[300px]">
                   <div className="space-y-4">
                     {sortedViolations.map((violation, index) => (
-                      <ViolationItem key={violation.id} violation={violation} isLatest={index === 0} />
+                      <ViolationItem key={violation._id} violation={violation} isLatest={index === 0} />
                     ))}
                   </div>
                 </ScrollArea>
@@ -132,7 +132,6 @@ export const StudentDetailModal = ({ isOpen, onClose, student, onAddViolation }:
 const ViolationItem = ({ violation, isLatest }: { violation: Violation; isLatest: boolean }) => {
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case "Severe": return "bg-danger text-danger-foreground";
       case "Major": return "bg-warning text-warning-foreground";
       case "Minor": return "bg-muted text-muted-foreground";
       default: return "bg-muted text-muted-foreground";

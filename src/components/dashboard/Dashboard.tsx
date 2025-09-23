@@ -8,11 +8,12 @@ import { StudentCard } from "@/components/students/StudentCard";
 import { StudentFilters } from "@/components/students/StudentFilters";
 import { ViolationModal } from "@/components/violations/ViolationModal";
 import { StudentDetailModal } from "@/components/violations/StudentDetailModal";
-import { StudentWithViolations, Course, Program, ViolationSeverity, ViolationData } from "@/types/student";
+import { StudentWithViolations, Course, Program, ViolationSeverity, ViolationData, StudentData } from "@/types/student";
 import { useToast } from "@/hooks/use-toast";
 import { StudentModal } from "@/components/students/StudentModal";
 
-import academicHeaderImage from "@/assets/academic-header.jpg";
+import academicHeaderImage from "@/assets/dbbg.jpg";
+import { set } from "date-fns";
 
 export const Dashboard = () => {
 
@@ -60,7 +61,7 @@ useEffect(() => {
       });
       const dataStudents = await resStudents.json();
       setStudents(Array.isArray(dataStudents) ? dataStudents : []);
-
+  
       const resStats = await fetch(`${API_BASE}/violations/stats`, {
         headers: {
           "Authorization": `Bearer ${token}`
@@ -79,16 +80,18 @@ useEffect(() => {
 
 
 //Add student
-const handleAddStudent = async (studentData: any) => {
+const handleAddStudent = async (studentData: StudentData) => {
   try {
     const res = await fetch(`${API_BASE}/students`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+       },
       body: JSON.stringify(studentData),
     });
-
+    
     if (!res.ok) throw new Error("Failed to add student");
-
+   
     // refresh student list
     const updatedStudents = await (await fetch(`${API_BASE}/students`)).json();
     setStudents(Array.isArray(updatedStudents) ? updatedStudents : []);
@@ -99,6 +102,12 @@ const handleAddStudent = async (studentData: any) => {
     });
   } catch (err) {
     console.error("Error adding student:", err);
+
+    toast({
+      title: "Error",
+      description: "There was an issue adding the student. Please try again.",
+      variant: "destructive",
+    });
   }
 };
 
@@ -122,7 +131,7 @@ const handleSubmitViolation = async (violationData: ViolationData) => {
         "Authorization": `Bearer ${token}`
        },
       body: JSON.stringify({
-        studentId: selectedStudent._id,
+        studentId: selectedStudent.studentId,
         ...violationData,
        createdBy: currentUser?.username || "Unknown User",
       }),
@@ -132,7 +141,7 @@ const handleSubmitViolation = async (violationData: ViolationData) => {
 
     // refresh students + stats
     const updatedStudents = await (await fetch(`${API_BASE}/students`)).json();
-    setStudents(updatedStudents);
+    setStudents(Array.isArray(updatedStudents) ? updatedStudents : []);
 
     const updatedStats = await (await fetch(`${API_BASE}/violations/stats`)).json();
     setStats(updatedStats);

@@ -1,28 +1,43 @@
 import Student, {IStudent} from "../models/Student";
-import bcrypt from "bcryptjs";
 import express, { Request, Response } from "express";
 const router = express.Router();
 import Violation, { IViolation } from "../models/Violation";
 import {authMiddleware} from "../middleware/auth";
 
 // POST /api/students
-router.post("/api/students", authMiddleware, async (req: Request, res: Response) => {
+router.post("/", authMiddleware, async (req: Request, res: Response) => {
   try {
-    const { firstName, lastName, studentId, course, program, year } = req.body;
+    const { studentId, firstName, middlename, lastName, email, course,program,  year } = req.body;
 
-    const newStudent = new Student({ firstName, lastName, studentId, course, program, year });
+    const newStudent = new Student({
+      studentId,
+      firstName,
+      middlename,
+      lastName,
+      email,
+       course,
+      program,
+     
+      year,
+    });
+
     await newStudent.save();
+    
 
-    res.status(201).json(newStudent);
+    res.status(201).json({
+      success: true,
+      message: "Student created successfully",
+      student: newStudent,
+    });
   } catch (err: any) {
     console.error(err);
-    res.status(500).json({ message: "Failed to add student" });
+    res.status(500).json({ message: "Server error" });
   }
 });
 
 
 //Get students with violation 
-router.get("/",authMiddleware, async (req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
     try {
       const students: IStudent[] = await Student.find();
       const violations: IViolation[] = await Violation.find();
@@ -31,7 +46,7 @@ router.get("/",authMiddleware, async (req: Request, res: Response) => {
    
         // Find violations for this student
         const studentViolations = violations.filter(
-          (violation) => violation.studentId.toString() === student._id.toString()
+          (violation) => violation.studentId.toString() === student.studentId.toString()
         );
   
         // Count violations

@@ -4,6 +4,7 @@ export interface IStudent extends Document {
     _id: Types.ObjectId;
     studentId: string;
     firstName: string;
+    middlename?: string;
     lastName: string;
     course: string;
     program: string;
@@ -16,6 +17,7 @@ export interface IStudent extends Document {
 const StudentSchema: Schema = new Schema<IStudent>({
     studentId: { type: String, required: true, unique: true},
     firstName: { type: String, required: true },
+    middlename: { type: String},
     lastName: { type: String, required: true },
     course: { type: String, required: true },
     program: { type: String, required: true },

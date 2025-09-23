@@ -56,3 +56,13 @@ export interface StudentWithViolations extends Student {
   violationCount: number;
   lastViolation?: Date;
 }
+
+export interface StudentData {
+  firstName: string;
+  lastName: string;
+  studentId: string;
+  course: string;
+  program: string;
+  year: string; 
+  email?: string;
+}

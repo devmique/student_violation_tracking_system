@@ -33,7 +33,7 @@ export const StudentCard = ({ student, onViewDetails, onAddViolation }: StudentC
             </div>
             <div>
               <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                {student.firstName} {student.lastName}
+                {student.firstName} {student.middlename} {student.lastName}
               </h3>
               <p className="text-sm text-muted-foreground">{student.studentId}</p>
             </div>
