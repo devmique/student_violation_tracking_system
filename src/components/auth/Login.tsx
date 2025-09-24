@@ -41,7 +41,7 @@ export const Login = () => {
         title: "Login successful",
         description: `Welcome back, ${data.user.username}!`,
       });
-
+  
       window.location.href = "/dashboard";
     } catch (err: any) {
       toast({

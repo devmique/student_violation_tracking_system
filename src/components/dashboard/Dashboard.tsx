@@ -14,6 +14,7 @@ import { StudentModal } from "@/components/students/StudentModal";
 
 import academicHeaderImage from "@/assets/dbbg.jpg";
 import { set } from "date-fns";
+import { ProfilePicModal } from "../students/ProfilePicModal";
 
 export const Dashboard = () => {
 
@@ -28,12 +29,67 @@ export const Dashboard = () => {
   const [students, setStudents] = useState<StudentWithViolations[]>([]);
   const [stats, setStats] = useState<any>(null);
 
+  //profile state
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [profileStudent, setProfileStudent] = useState<StudentWithViolations | null>(null);
    const token = localStorage.getItem("token");
+ 
    const storedUser = localStorage.getItem("user");
    const currentUser = storedUser ? JSON.parse(storedUser) : null;
 
   const { toast } = useToast();
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+
+const student = localStorage.getItem("student");
+console.log(student)
+
+// Upload student profile picture
+const handleUploadProfilePic = async (id: string, file: File) => {
+  try {
+    const formData = new FormData();
+    formData.append("profilePic", file);
+
+    const res = await fetch(`${API_BASE}/students/${id}/profile-pic`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+    
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData.error || "Failed to upload profile picture");
+    }
+
+    const updatedStudent: StudentWithViolations = await res.json();
+
+    // Update state to reflect new profile pic
+    setStudents((prev) => {
+  const updated = prev.map((s) =>
+    s._id === updatedStudent._id ? updatedStudent : s
+  );
+  localStorage.setItem("students", JSON.stringify(updated)); // ✅ persist
+  return updated;
+});
+
+    // If the modal is open, update the displayed student
+    if (profileStudent && profileStudent._id === updatedStudent._id) {
+      setProfileStudent(updatedStudent);
+    }
+ 
+    toast({
+      title: "Profile Updated",
+      description: "Profile picture updated successfully",
+    });
+      window.location.reload();
+  } catch (err: any) {
+    console.error(err);
+    toast({
+      title: "Error",
+      description: err.message || "Could not update profile picture",
+      variant: "destructive",
+    });
+  }
+};
 
   // Filter students based on search and filters
   const filteredStudents = useMemo(() => {
@@ -61,7 +117,9 @@ useEffect(() => {
       });
       const dataStudents = await resStudents.json();
       setStudents(Array.isArray(dataStudents) ? dataStudents : []);
-  
+    // ✅ Save to localStorage
+      localStorage.setItem("students", JSON.stringify(dataStudents));
+
       const resStats = await fetch(`${API_BASE}/violations/stats`, {
         headers: {
           "Authorization": `Bearer ${token}`
@@ -89,13 +147,18 @@ const handleAddStudent = async (studentData: StudentData) => {
        },
       body: JSON.stringify(studentData),
     });
-    
+  
     if (!res.ok) throw new Error("Failed to add student");
-   
-    // refresh student list
-    const updatedStudents = await (await fetch(`${API_BASE}/students`)).json();
-    setStudents(Array.isArray(updatedStudents) ? updatedStudents : []);
-
+   const data = res.json();
+  
+    
+   // refresh student list properly
+const resUpdated = await fetch(`${API_BASE}/students`, {
+  headers: { "Authorization": `Bearer ${token}` }
+});
+const updatedStudents = await resUpdated.json();
+setStudents(Array.isArray(updatedStudents) ? updatedStudents : []);
+localStorage.setItem("students", JSON.stringify(updatedStudents)); // ✅ persist
     toast({
       title: "Student Added",
       description: `${studentData.firstName} ${studentData.lastName} has been added.`,
@@ -140,12 +203,17 @@ const handleSubmitViolation = async (violationData: ViolationData) => {
     if (!res.ok) throw new Error("Failed to add violation");
 
     // refresh students + stats
-    const updatedStudents = await (await fetch(`${API_BASE}/students`)).json();
-    setStudents(Array.isArray(updatedStudents) ? updatedStudents : []);
-
-    const updatedStats = await (await fetch(`${API_BASE}/violations/stats`)).json();
-    setStats(updatedStats);
-
+    const resStudents = await fetch(`${API_BASE}/students`, {
+  headers: { "Authorization": `Bearer ${token}` }
+});
+const updatedStudents = await resStudents.json();
+setStudents(Array.isArray(updatedStudents) ? updatedStudents : []);
+localStorage.setItem("students", JSON.stringify(updatedStudents)); // ✅ persist
+const resStats = await fetch(`${API_BASE}/violations/stats`, {
+  headers: { "Authorization": `Bearer ${token}` }
+});
+const updatedStats = await resStats.json();
+setStats(updatedStats);
     toast({
       title: "Violation Added",
       description: `Successfully recorded violation for ${selectedStudent.firstName} ${selectedStudent.lastName}`,
@@ -154,13 +222,17 @@ const handleSubmitViolation = async (violationData: ViolationData) => {
     console.error(err);
   }
 };
-  
+  const handleOpenProfileModal = (student: StudentWithViolations) => {
+  setProfileStudent(student);
+  setIsProfileModalOpen(true);
+};
+
   const handleClearFilters = () => {
     setSelectedCourse("All");
     setSelectedProgram("All");
     setSelectedYear("All");
   };
-
+console.log(students);
   return (
     <div className="min-h-screen bg-background">
       <Header searchQuery={searchQuery} onSearch={setSearchQuery} />
@@ -248,6 +320,7 @@ const handleSubmitViolation = async (violationData: ViolationData) => {
                     student={student}
                     onViewDetails={handleViewDetails}
                     onAddViolation={handleAddViolation}
+                    onChangeProfilePic={handleOpenProfileModal}
                   />
                 ))}
               </div>
@@ -278,6 +351,12 @@ const handleSubmitViolation = async (violationData: ViolationData) => {
         student={selectedStudent}
         onAddViolation={handleSubmitViolation}
       />
+<ProfilePicModal
+  isOpen={isProfileModalOpen}
+  onClose={() => setIsProfileModalOpen(false)}
+  student={profileStudent}
+  onUpload={handleUploadProfilePic}
+/>
 
       <StudentDetailModal
         isOpen={isDetailModalOpen}

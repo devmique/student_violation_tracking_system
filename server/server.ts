@@ -5,10 +5,9 @@ import cors from "cors";
 import Authentication from "./routes/auth";
 import Students from "./routes/students";
 import Violations from "./routes/violations";
-
+import Profile from "./routes/profile";
 dotenv.config();
-console.log("JWT_SECRET is:", process.env.JWT_SECRET);
-
+import path from "path";
 const app:Application = express();
 app.use(cors())
 app.use(express.json());
@@ -19,6 +18,11 @@ mongoose
 
 //authentication route
 app.use("/api/auth", Authentication);
+
+// ✅ Serve uploads folder as static
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+// profile route
+app.use("/api/profile", Profile);
 
 //students route
 app.use("/api/students", Students)

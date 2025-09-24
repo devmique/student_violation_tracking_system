@@ -29,6 +29,7 @@ if (existingUser) {
         id: newUser._id,
         username: newUser.username,
         email: newUser.email,
+        profilePic: newUser.profilePic || "",
       },
     });
   } catch (err: any) {
@@ -45,10 +46,8 @@ router.post("/login", async (req: Request, res:Response)=>{
 
         const user = await User.findOne({email})
         if(!user) return res.status(400).json({ message: "Invalid credentials"});
-        const existingUser = await User.findOne({ email });
-if (existingUser) {
-  return res.status(400).json({ message: "Email already registered" });
-}
+      
+
         const isMatch = await bcrypt.compare(password, user.password);
         if(!isMatch) return res.status(400).json({ message: "Invalid credentials"});
 
@@ -57,7 +56,7 @@ if (existingUser) {
             process.env.JWT_SECRET as string,
             {expiresIn: "7d"}
         )
-        res.json({token, user: {id: user._id, username: user.username, email: user.email}});
+        res.json({token, user: {id: user._id, username: user.username, email: user.email,  profilePic: user.profilePic || "/assets/avatar.jpg",}});
     } catch (err: any){
         console.error(err);
         res.status(500).json({ message: "Server error" });

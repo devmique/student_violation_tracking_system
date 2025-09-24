@@ -5,8 +5,12 @@
     "outDir": "dist",
     "rootDir": ".",
     "strict": true,
-    "esModuleInterop": true
+    "typeRoots": ["./node_modules/@types", "./types"],
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["./**/*"]
+  "include": ["./**/*.ts", "types/express.d.ts"],
+  "exclude": ["node_modules", "dist"]
 }
-

@@ -10,6 +10,7 @@ export interface Student {
   email?: string;
   createdAt: Date;
   updatedAt: Date;
+  profilePic?: string;
 }
 
 export interface Violation {

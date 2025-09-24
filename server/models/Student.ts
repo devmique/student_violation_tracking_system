@@ -12,6 +12,8 @@ export interface IStudent extends Document {
     email: string;
     createdAt: Date;
     updatedAt: Date; 
+      user: mongoose.Schema.Types.ObjectId; 
+      profilePic?: string;
 }
 
 const StudentSchema: Schema = new Schema<IStudent>({
@@ -23,6 +25,8 @@ const StudentSchema: Schema = new Schema<IStudent>({
     program: { type: String, required: true },
     year: { type: Number, required: true },
     email: { type: String, required: true, unique: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    profilePic: { type: String, default: '' },
 }, { timestamps: true
 })
 

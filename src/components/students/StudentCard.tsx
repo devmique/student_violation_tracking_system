@@ -8,9 +8,11 @@ interface StudentCardProps {
   student: StudentWithViolations;
   onViewDetails: (student: StudentWithViolations) => void;
   onAddViolation: (student: StudentWithViolations) => void;
+  onChangeProfilePic: (student: StudentWithViolations) => void; 
 }
 
-export const StudentCard = ({ student, onViewDetails, onAddViolation }: StudentCardProps) => {
+export const StudentCard = ({ student, onViewDetails, onAddViolation, onChangeProfilePic, }: StudentCardProps) => {
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case "Major": return "bg-warning text-warning-foreground";
@@ -29,13 +31,30 @@ export const StudentCard = ({ student, onViewDetails, onAddViolation }: StudentC
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-12 h-12 gradient-primary rounded-full flex items-center justify-center">
-              <User className="h-6 w-6 text-primary-foreground" />
+              <button
+                className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center gradient-primary hover:opacity-90 transition-opacity"
+               onClick={() => onChangeProfilePic(student)}
+             >
+              {student.profilePic ? (
+                <img 
+                src={`${student.profilePic}`} 
+                  alt={`${student.firstName} profile`} 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <User className="h-6 w-6 text-primary-foreground" />
+              )}
+             </button>
+              
             </div>
             <div>
               <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
                 {student.firstName} {student.middlename} {student.lastName}
               </h3>
               <p className="text-sm text-muted-foreground">{student.studentId}</p>
+             
+
+
             </div>
           </div>
           
