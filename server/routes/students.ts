@@ -54,7 +54,7 @@ router.delete(
     try {
       const student = await Student.findByIdAndUpdate(
         req.params.id,
-        { $unset: { profilePic: 1 } }, // ✅ remove profilePic field
+        { $unset: { profilePic: 1 } }, 
         { new: true }
       );
 

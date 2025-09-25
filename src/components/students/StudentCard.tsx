@@ -26,7 +26,7 @@ export const StudentCard = ({ student, onViewDetails, onAddViolation, onChangePr
     : "No violations";
 
   return (
-    <Card className="shadow-soft hover:shadow-medium transition-smooth group">
+    <Card className="shadow-soft hover:shadow-medium transition-smooth group ">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-3">
@@ -36,11 +36,12 @@ export const StudentCard = ({ student, onViewDetails, onAddViolation, onChangePr
                onClick={() => onChangeProfilePic(student)}
              >
               {student.profilePic ? (
-                <img 
-                src={`${student.profilePic}`} 
-                  alt={`${student.firstName} profile`} 
-                  className="w-full h-full object-cover"
-                />
+                <img
+                 src={`${API_BASE.replace("/api", "")}${student.profilePic}`}
+                 alt={`${student.firstName} profile`}
+                 className="w-full h-full object-cover"
+               />
+
               ) : (
                 <User className="h-6 w-6 text-primary-foreground" />
               )}
@@ -117,7 +118,7 @@ export const StudentCard = ({ student, onViewDetails, onAddViolation, onChangePr
           </div>
         )}
         
-        <div className="flex space-x-2 pt-2">
+        <div className="flex space-x-2 pt-2 ">
           <Button 
             variant="outline" 
             size="sm" 

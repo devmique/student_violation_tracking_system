@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 
 export const ProfilePicModal = ({ isOpen, onClose, student, onUpload }) => {
   const [file, setFile] = useState<File | null>(null);
   const token = localStorage.getItem("token");
   const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
-
+const { toast } = useToast();
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if(!file) {
-     toast.error("No file selected. Please select a file to upload.");
+ toast({ title: "No file selected", description: "Please select a file to upload", variant: "destructive" });
     }
     if (file && student) onUpload(student._id, file);
     onClose();
@@ -45,6 +45,13 @@ export const ProfilePicModal = ({ isOpen, onClose, student, onUpload }) => {
         <DialogHeader>
           <DialogTitle>Update Profile Picture</DialogTitle>
         </DialogHeader>
+          <div className="flex flex-col gap-4">
+            {student?.profilePic && (
+         <img
+  src={`${API_BASE.replace("/api", "")}${student.profilePic}`}
+  alt={`${student.firstName} profile`}
+      className="w-24 h-24 rounded-full object-cover mx-auto"
+/> )}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
             type="file"
@@ -52,6 +59,7 @@ export const ProfilePicModal = ({ isOpen, onClose, student, onUpload }) => {
             onChange={(e) => setFile(e.target.files?.[0] || null)}
           />
           <div className="flex justify-between gap-2">
+
             <Button type="submit">Upload</Button>
             {student?.profilePic && (
               <Button type="button" variant="destructive" onClick={handleDelete}>
@@ -59,7 +67,9 @@ export const ProfilePicModal = ({ isOpen, onClose, student, onUpload }) => {
               </Button>
             )}
           </div>
+          
         </form>
+        </div>
       </DialogContent>
     </Dialog>
   );

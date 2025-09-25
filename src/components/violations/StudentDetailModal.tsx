@@ -30,25 +30,37 @@ export const StudentDetailModal = ({ isOpen, onClose, student, onAddViolation }:
   );
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[700px] max-h-[80vh]">
+    <Dialog open={isOpen} onOpenChange={onClose} >
+      <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
-            <User className="h-5 w-5 text-primary" />
+          
+    <User className="h-8 w-8 text-primary-foreground" />
+
             <span>Student Details</span>
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
           {/* Student Information */}
-          <Card>
+          <Card className="">
             <CardHeader>
               <CardTitle className="text-lg">Student Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 gradient-primary rounded-full flex items-center justify-center">
+                <div className=" overflow-hidden w-16 h-16 gradient-primary rounded-full flex items-center justify-center">
+                   
+           {student.profilePic ? (
+              <img 
+                src={student.profilePic} 
+                alt={`${student.firstName} ${student.lastName}`} 
+                className="h-full w-full object-cover"
+              />
+            ) : (
                   <User className="h-8 w-8 text-primary-foreground" />
+            )}
+                
                 </div>
                 <div className="flex-1">
                   <h3 className="text-xl font-semibold text-foreground">
@@ -78,7 +90,7 @@ export const StudentDetailModal = ({ isOpen, onClose, student, onAddViolation }:
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-muted-foreground">Total Violations</p>
                   <Badge variant={student.violationCount > 0 ? "destructive" : "secondary"}>
-                    {student.violationCount}
+                    {student.violations.length}
                   </Badge>
                 </div>
               </div>
@@ -93,11 +105,11 @@ export const StudentDetailModal = ({ isOpen, onClose, student, onAddViolation }:
           </Card>
 
           {/* Violations History */}
-          <Card>
+          <Card className="">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <AlertTriangle className="h-5 w-5 text-warning" />
-                <span>Violation History ({student.violationCount})</span>
+                <span>Violation History ({student.violations.length})</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
