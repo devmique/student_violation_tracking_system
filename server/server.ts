@@ -19,6 +19,7 @@ mongoose
 //authentication route
 app.use("/api/auth", Authentication);
 
+
 // ✅ Serve uploads folder as static
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 // profile route

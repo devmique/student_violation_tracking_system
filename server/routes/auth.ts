@@ -56,7 +56,7 @@ router.post("/login", async (req: Request, res:Response)=>{
             process.env.JWT_SECRET as string,
             {expiresIn: "7d"}
         )
-        res.json({token, user: {id: user._id, username: user.username, email: user.email,  profilePic: user.profilePic || "/assets/avatar.jpg",}});
+        res.json({token, user: {id: user._id, username: user.username, email: user.email,  profilePic: user.profilePic}});
     } catch (err: any){
         console.error(err);
         res.status(500).json({ message: "Server error" });

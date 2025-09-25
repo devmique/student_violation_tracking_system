@@ -117,7 +117,7 @@ useEffect(() => {
       });
       const dataStudents = await resStudents.json();
       setStudents(Array.isArray(dataStudents) ? dataStudents : []);
-    // ✅ Save to localStorage
+  
       localStorage.setItem("students", JSON.stringify(dataStudents));
 
       const resStats = await fetch(`${API_BASE}/violations/stats`, {
@@ -351,12 +351,12 @@ console.log(students);
         student={selectedStudent}
         onAddViolation={handleSubmitViolation}
       />
-<ProfilePicModal
-  isOpen={isProfileModalOpen}
-  onClose={() => setIsProfileModalOpen(false)}
-  student={profileStudent}
-  onUpload={handleUploadProfilePic}
-/>
+      <ProfilePicModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        student={profileStudent}
+        onUpload={handleUploadProfilePic}
+      />
 
       <StudentDetailModal
         isOpen={isDetailModalOpen}

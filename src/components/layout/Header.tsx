@@ -29,8 +29,11 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api
 export const Header = ({ onSearch, searchQuery }: HeaderProps) => {
   const storedUser = localStorage.getItem("user");
     const token = localStorage.getItem("token");
+
+
+
   const [currentUser, setCurrentUser] = useState(
-    storedUser ? JSON.parse(storedUser) : { username: "Guest" }
+    storedUser ? JSON.parse(storedUser) : { username: "Guest", profilePic: "" }
   );
 const [isUserModalOpen, setIsUserModalOpen] = useState(false);
 
@@ -105,8 +108,8 @@ const { toast } = useToast();
     
   };
 
+console.log("Profile Pic Path:", currentUser.profilePic);
 
-console.log(currentUser);
   return (
     <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b shadow-soft">
       <div className="container mx-auto px-6 py-4">
@@ -158,6 +161,7 @@ console.log(currentUser);
               >
               {currentUser.profilePic ? (
                 <img
+                
                   src={currentUser.profilePic}
                   alt="User Avatar"
                   className="w-full h-full object-cover"
@@ -183,11 +187,13 @@ console.log(currentUser);
             <DialogTitle>Update Profile Picture</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-4">
+            {currentUser.profilePic && (
             <img
               src={currentUser.profilePic || ""}
               alt="Profile"
               className="w-24 h-24 rounded-full object-cover mx-auto"
             />
+            )}
              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <input type="file" accept="image/*" onChange={handleUpload} />
               <div className="flex justify-between gap-2">

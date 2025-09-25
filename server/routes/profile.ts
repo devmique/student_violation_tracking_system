@@ -7,7 +7,7 @@ const router = express.Router();
 // configure multer storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/"); // folder to save images
+    cb(null, "../uploads/"); // folder to save images
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + "-" + file.originalname);
@@ -21,6 +21,7 @@ router.post("/upload/:id", upload.single("profilePic"), async (req: Request, res
   try {
     const userId = req.params.id;
     const imagePath = `/uploads/${req.file?.filename}`;
+
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,

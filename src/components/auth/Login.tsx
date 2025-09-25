@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import * as Tabs from "@radix-ui/react-tabs";
-
+import logo from "@/assets/DON-BOSCO-COLLEGE-LOGO.png"
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
 export const Login = () => {
@@ -41,7 +41,8 @@ export const Login = () => {
         title: "Login successful",
         description: `Welcome back, ${data.user.username}!`,
       });
-  
+      setEmail("");
+      setPassword("");
       window.location.href = "/dashboard";
     } catch (err: any) {
       toast({
@@ -70,7 +71,9 @@ export const Login = () => {
         title: "Registration successful",
         description: `Welcome, ${data.user.username}!`,
       });
-
+     setUsername("");
+      setRegEmail("");
+      setRegPassword("");
       // Switch to login tab automatically after successful register
       setEmail(regEmail);
       setPassword(regPassword);
@@ -89,9 +92,14 @@ export const Login = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <Card className="w-full max-w-md shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-center text-2xl">Welcome</CardTitle>
+        <CardHeader className="flex flex-col items-center ">
+                           <img src={logo} alt="logo" className="w-16 h-16" />
+          <CardTitle className="text-center text-2xl">Welcome to DBC Violation Tracker
+              
+       </CardTitle>
+               
         </CardHeader>
+ 
         <CardContent>
           <Tabs.Root defaultValue="login" className="w-full">
             <Tabs.List className="flex justify-center space-x-4 mb-4">

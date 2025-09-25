@@ -8,6 +8,7 @@ export const ProfilePicModal = ({ isOpen, onClose, student, onUpload }) => {
   const token = localStorage.getItem("token");
   const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 const { toast } = useToast();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if(!file) {
