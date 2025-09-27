@@ -18,7 +18,7 @@ const upload = multer({ storage });
 
 
 // PATCH: Update profile picture
-router.patch(
+router.post(
   "/:id/profile-pic",
   authMiddleware,
   upload.single("profilePic"),

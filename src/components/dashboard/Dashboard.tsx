@@ -11,7 +11,7 @@ import { StudentDetailModal } from "@/components/violations/StudentDetailModal";
 import { StudentWithViolations, Course, Program, ViolationSeverity, ViolationData, StudentData } from "@/types/student";
 import { useToast } from "@/hooks/use-toast";
 import { StudentModal } from "@/components/students/StudentModal";
-
+import axios from "axios";
 import academicHeaderImage from "@/assets/dbbg.jpg";
 import { set } from "date-fns";
 import { ProfilePicModal } from "../students/ProfilePicModal";
@@ -45,42 +45,45 @@ console.log(student)
 
 // Upload student profile picture
 const handleUploadProfilePic = async (id: string, file: File) => {
+  
   try {
     const formData = new FormData();
     formData.append("profilePic", file);
 
-    const res = await fetch(`${API_BASE}/students/${id}/profile-pic`, {
-      method: "PATCH",
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData,
-    });
-    
-    if (!res.ok) {
-      const errData = await res.json();
-      throw new Error(errData.error || "Failed to upload profile picture");
-    }
+    // ✅ Use axios.post
+    const res = await axios.post(
+      `${API_BASE}/students/${id}/profile-pic`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // don't set Content-Type manually
+        },
+      }
+    );
 
-    const updatedStudent: StudentWithViolations = await res.json();
+    const updatedStudent: StudentWithViolations = res.data; 
 
-    // Update state to reflect new profile pic
+    //  Update state to reflect new profile pic
     setStudents((prev) => {
-  const updated = prev.map((s) =>
-    s._id === updatedStudent._id ? updatedStudent : s
-  );
-  localStorage.setItem("students", JSON.stringify(updated)); // ✅ persist
-  return updated;
-});
+      const updated = prev.map((s) =>
+        s._id === updatedStudent._id ? updatedStudent : s
+      );
+      localStorage.setItem("students", JSON.stringify(updated)); 
+      return updated;
+    });
 
-    // If the modal is open, update the displayed student
+   
     if (profileStudent && profileStudent._id === updatedStudent._id) {
       setProfileStudent(updatedStudent);
     }
- 
-    toast({
+
+   
+  toast({
       title: "Profile Updated",
       description: "Profile picture updated successfully",
     });
-      window.location.reload();
+    window.location.reload();
+   
   } catch (err: any) {
     console.error(err);
     toast({
@@ -110,25 +113,26 @@ const handleUploadProfilePic = async (id: string, file: File) => {
 useEffect(() => {
   const fetchData = async () => {
     try {
-      const resStudents = await fetch(`${API_BASE}/students`,{
+      // ✅ Fetch students
+      const resStudents = await axios.get(`${API_BASE}/students`, {
         headers: {
-          "Authorization": `Bearer ${token}`
-         }
+          Authorization: `Bearer ${token}`,
+        },
       });
-      const dataStudents = await resStudents.json();
+      const dataStudents = resStudents.data;
       setStudents(Array.isArray(dataStudents) ? dataStudents : []);
-  
       localStorage.setItem("students", JSON.stringify(dataStudents));
 
-      const resStats = await fetch(`${API_BASE}/violations/stats`, {
+      // ✅ Fetch stats
+      const resStats = await axios.get(`${API_BASE}/violations/stats`, {
         headers: {
-          "Authorization": `Bearer ${token}`
-         }
+          Authorization: `Bearer ${token}`,
+        },
       });
-      const dataStats = await resStats.json();
-      setStats(dataStats);
+      setStats(resStats.data);
+
     } catch (err) {
-       console.error("Fetch error:", err);
+      console.error("Fetch error:", err);
       setStudents([]);
     }
   };
@@ -140,25 +144,20 @@ useEffect(() => {
 //Add student
 const handleAddStudent = async (studentData: StudentData) => {
   try {
-    const res = await fetch(`${API_BASE}/students`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-       },
-      body: JSON.stringify(studentData),
+    // ✅ Add student
+    await axios.post(`${API_BASE}/students`, studentData, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-  
-    if (!res.ok) throw new Error("Failed to add student");
-   const data = res.json();
-  
-    
-   // refresh student list properly
-const resUpdated = await fetch(`${API_BASE}/students`, {
-  headers: { "Authorization": `Bearer ${token}` }
-});
-const updatedStudents = await resUpdated.json();
-setStudents(Array.isArray(updatedStudents) ? updatedStudents : []);
-localStorage.setItem("students", JSON.stringify(updatedStudents)); // ✅ persist
+
+    // ✅ Refresh students list
+    const resUpdated = await axios.get(`${API_BASE}/students`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const updatedStudents = resUpdated.data;
+
+    setStudents(Array.isArray(updatedStudents) ? updatedStudents : []);
+    localStorage.setItem("students", JSON.stringify(updatedStudents));
+
     toast({
       title: "Student Added",
       description: `${studentData.firstName} ${studentData.lastName} has been added.`,
@@ -188,38 +187,44 @@ const handleSubmitViolation = async (violationData: ViolationData) => {
   if (!selectedStudent) return;
 
   try {
-    const res = await fetch(`${API_BASE}/violations`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-       },
-      body: JSON.stringify({
+    // ✅ Add violation
+    await axios.post(
+      `${API_BASE}/violations`,
+      {
         studentId: selectedStudent.studentId,
         ...violationData,
-       createdBy: currentUser?.username || "Unknown User",
-      }),
+        createdBy: currentUser?.username || "Unknown User",
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    // ✅ Refresh students
+    const resStudents = await axios.get(`${API_BASE}/students`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
+    const updatedStudents = resStudents.data;
+    setStudents(Array.isArray(updatedStudents) ? updatedStudents : []);
+    localStorage.setItem("students", JSON.stringify(updatedStudents)); // ✅ persist
 
-    if (!res.ok) throw new Error("Failed to add violation");
+    // ✅ Refresh stats
+    const resStats = await axios.get(`${API_BASE}/violations/stats`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setStats(resStats.data);
 
-    // refresh students + stats
-    const resStudents = await fetch(`${API_BASE}/students`, {
-  headers: { "Authorization": `Bearer ${token}` }
-});
-const updatedStudents = await resStudents.json();
-setStudents(Array.isArray(updatedStudents) ? updatedStudents : []);
-localStorage.setItem("students", JSON.stringify(updatedStudents)); // ✅ persist
-const resStats = await fetch(`${API_BASE}/violations/stats`, {
-  headers: { "Authorization": `Bearer ${token}` }
-});
-const updatedStats = await resStats.json();
-setStats(updatedStats);
     toast({
       title: "Violation Added",
       description: `Successfully recorded violation for ${selectedStudent.firstName} ${selectedStudent.lastName}`,
     });
   } catch (err) {
-    console.error(err);
+    console.error("Error adding violation:", err);
+    toast({
+      title: "Error",
+      description: "There was an issue adding the violation. Please try again.",
+      variant: "destructive",
+    });
   }
 };
   const handleOpenProfileModal = (student: StudentWithViolations) => {

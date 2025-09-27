@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import multer from "multer";
 import User from "../models/User";
+import { authMiddleware } from "../middleware/auth";
 
 const router = express.Router();
 
@@ -17,7 +18,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // Upload / Update profile picture
-router.post("/upload/:id", upload.single("profilePic"), async (req: Request, res: Response) => {
+router.post("/upload/:id", authMiddleware, upload.single("profilePic"), async (req: Request, res: Response) => {
   try {
     const userId = req.params.id;
     const imagePath = `/uploads/${req.file?.filename}`;
@@ -36,7 +37,7 @@ router.post("/upload/:id", upload.single("profilePic"), async (req: Request, res
 });
 
 // Delete profile picture
-router.delete("/delete/:id", async (req: Request, res: Response) => {
+router.delete("/delete/:id", authMiddleware, async (req: Request, res: Response) => {
   try {
     const userId = req.params.id;
 

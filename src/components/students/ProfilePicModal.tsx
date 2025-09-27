@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import axios from "axios";
 
 export const ProfilePicModal = ({ isOpen, onClose, student, onUpload }) => {
   const [file, setFile] = useState<File | null>(null);
@@ -26,17 +27,22 @@ const { toast } = useToast();
     if (!window.confirm("Are you sure you want to delete this profile picture?")) return;
 
     try {
-      const res = await fetch(`${API_BASE}/students/${student._id}/profile-pic`, {
-        method: "DELETE",
+      const res = await axios.delete(`${API_BASE}/students/${student._id}/profile-pic`, {
+      
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (!res.ok) throw new Error("Failed to delete profile picture");
+      if (res.status!== 200) throw new Error("Failed to delete profile picture");
       onClose();
       window.location.reload(); // or optimistically update state if you prefer
-    } catch (err) {
+    } catch (err:any) {
       console.error(err);
-      alert("Error deleting profile picture");
+     
+    toast({
+        title: "Delete failed",
+        description: err.response?.data?.message || "Error deleting profile picture",
+        variant: "destructive",
+      });
     }
   };
 
