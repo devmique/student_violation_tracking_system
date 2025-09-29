@@ -8,12 +8,11 @@ import { StudentCard } from "@/components/students/StudentCard";
 import { StudentFilters } from "@/components/students/StudentFilters";
 import { ViolationModal } from "@/components/violations/ViolationModal";
 import { StudentDetailModal } from "@/components/violations/StudentDetailModal";
-import { StudentWithViolations, Course, Program, ViolationSeverity, ViolationData, StudentData } from "@/types/student";
+import { StudentWithViolations, Course, Program, ViolationData, StudentData, ViolationStats } from "@/types/student";
 import { useToast } from "@/hooks/use-toast";
 import { StudentModal } from "@/components/students/StudentModal";
 import axios from "axios";
 import academicHeaderImage from "@/assets/dbbg.jpg";
-import { set } from "date-fns";
 import { ProfilePicModal } from "../students/ProfilePicModal";
 
 export const Dashboard = () => {
@@ -27,7 +26,7 @@ export const Dashboard = () => {
   const [isViolationModalOpen, setIsViolationModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [students, setStudents] = useState<StudentWithViolations[]>([]);
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<ViolationStats>(null);
 
   //profile state
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -41,11 +40,10 @@ export const Dashboard = () => {
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
 const student = localStorage.getItem("student");
-console.log(student)
 
 // Upload student profile picture
 const handleUploadProfilePic = async (id: string, file: File) => {
-  
+
   try {
     const formData = new FormData();
     formData.append("profilePic", file);
@@ -237,7 +235,7 @@ const handleSubmitViolation = async (violationData: ViolationData) => {
     setSelectedProgram("All");
     setSelectedYear("All");
   };
-console.log(students);
+
   return (
     <div className="min-h-screen bg-background">
       <Header searchQuery={searchQuery} onSearch={setSearchQuery} />
@@ -302,17 +300,17 @@ console.log(students);
                 </p>
               </div>
              <Button 
-  className="bg-primary text-primary-foreground hover:bg-primary-hover transition-smooth"
-  onClick={() => setIsStudentModalOpen(true)}
->
-  <Plus className="h-4 w-4 mr-2" />
-  Add New Student
-</Button>
-<StudentModal
-  isOpen={isStudentModalOpen}
-  onClose={() => setIsStudentModalOpen(false)}
-  onAddStudent={handleAddStudent}
-/>
+               className="bg-primary text-primary-foreground hover:bg-primary-hover transition-smooth"
+               onClick={() => setIsStudentModalOpen(true)}
+             >
+               <Plus className="h-4 w-4 mr-2" />
+               Add New Student
+             </Button>
+             <StudentModal
+               isOpen={isStudentModalOpen}
+               onClose={() => setIsStudentModalOpen(false)}
+               onAddStudent={handleAddStudent}
+             />
 
             </div>
 

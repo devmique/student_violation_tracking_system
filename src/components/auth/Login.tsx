@@ -1,14 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import * as Tabs from "@radix-ui/react-tabs";
+import { useTheme } from "next-themes";
 import logo from "@/assets/DON-BOSCO-COLLEGE-LOGO.png"
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
 export const Login = () => {
+  //reset theme to system
+    const { setTheme } = useTheme();
+
+  useEffect(() => {
+    // Reset theme to system (or light) whenever login page mounts
+    setTheme("light"); 
+  }, [setTheme]);
+
   const { toast } = useToast();
 
   // Shared loading state

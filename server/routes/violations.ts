@@ -10,14 +10,14 @@ router.post("/", authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ message: "Unauthorized" });
 
-    const { studentId, description, severity, dateCommitted, notes } = req.body;
+    const { studentId, description, severity, dateCommitted, notes, createdBy } = req.body;
 
     if (!studentId || !description || !severity) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
     // ensure student belongs to this user
-    const student = await Student.findOne({ studentId, user: req.user.id });
+    const student = await Student.findOne({ studentId, user: req.user.id,});
     if (!student) {
       return res.status(404).json({ message: "Student not found or not yours" });
     }
@@ -28,7 +28,7 @@ router.post("/", authMiddleware, async (req: AuthRequest, res: Response) => {
       severity,
       dateCommitted: dateCommitted || new Date(),
       notes,
-      createdBy: req.user.id,
+      createdBy,
     });
 
     await violation.save();

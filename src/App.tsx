@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import { Login } from "./components/auth/Login";
 import NotFound from "./pages/NotFound";
+import { ThemeProvider } from "@/components/theme/ThemeProvider"; 
 import { Dashboard } from "./components/dashboard/Dashboard";
 const queryClient = new QueryClient();
 const token = localStorage.getItem("token");
@@ -26,15 +27,18 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ThemeProvider>
         <Routes>
           <Route path="/" element={<Index />} />
            <Route path="login" element={<PublicRoute element={<Login />} />} />
+         
            <Route
             path="dashboard"
             element={<ProtectedRoute element={<Dashboard />} />}
            />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </ThemeProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

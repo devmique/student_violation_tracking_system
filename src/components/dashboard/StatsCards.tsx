@@ -1,10 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, Users, Clock, TrendingUp } from "lucide-react";
 import { ViolationStats } from "@/types/student";
-
-interface StatsCardsProps {
+//import { Skeleton } from "../ui/skeleton";
+export interface StatsCardsProps {
   stats: ViolationStats;
   studentCount: number;
+  loading?: boolean;
 }
 
 export const StatsCards = ({ stats, studentCount }: StatsCardsProps) => {
@@ -42,6 +43,7 @@ export const StatsCards = ({ stats, studentCount }: StatsCardsProps) => {
   ];
 
   return (
+ 
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {cards.map((card, index) => (
         <Card key={index} className="shadow-soft hover:shadow-medium transition-smooth">
@@ -54,10 +56,14 @@ export const StatsCards = ({ stats, studentCount }: StatsCardsProps) => {
             </div>
           </CardHeader>
           <CardContent>
+            
+              
             <div className="text-2xl font-bold text-foreground">{card.value}</div>
             {card.subtitle && (
               <p className="text-xs text-muted-foreground mt-1">{card.subtitle}</p>
+
             )}
+         
           </CardContent>
         </Card>
       ))}

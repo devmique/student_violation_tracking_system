@@ -32,9 +32,9 @@ const { toast } = useToast();
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (res.status!== 200) throw new Error("Failed to delete profile picture");
+      toast({ title: "Deleted", description: "Profile picture removed" });
       onClose();
-      window.location.reload(); // or optimistically update state if you prefer
+      window.location.reload(); 
     } catch (err:any) {
       console.error(err);
      

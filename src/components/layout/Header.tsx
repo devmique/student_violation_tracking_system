@@ -10,6 +10,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 
 
+
 interface HeaderProps {
   onSearch: (query: string) => void;
   searchQuery: string;
@@ -27,6 +28,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api
 
 
 export const Header = ({ onSearch, searchQuery }: HeaderProps) => {
+ 
   const storedUser = localStorage.getItem("user");
     const token = localStorage.getItem("token");
 
@@ -107,8 +109,6 @@ const { toast } = useToast();
     }
     
   };
-
-console.log("Profile Pic Path:", currentUser.profilePic);
 
   return (
     <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b shadow-soft">
