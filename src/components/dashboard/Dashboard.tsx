@@ -54,7 +54,7 @@ const handleUploadProfilePic = async (id: string, file: File) => {
       formData,
       {
         headers: {
-          Authorization: `Bearer ${token}`, // don't set Content-Type manually
+          Authorization: `Bearer ${token}`, 
         },
       }
     );
