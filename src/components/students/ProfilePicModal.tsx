@@ -13,7 +13,11 @@ const { toast } = useToast();
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if(!file) {
- toast({ title: "No file selected", description: "Please select a file to upload", variant: "destructive" });
+   toast({
+     title: "No file selected",
+     description: "Please select a file to upload",
+     variant: "destructive" });
+     return;
     }
     if (file && student) onUpload(student._id, file);
     onClose();
@@ -34,7 +38,7 @@ const { toast } = useToast();
 
       toast({ title: "Deleted", description: "Profile picture removed" });
       onClose();
-      window.location.reload(); 
+    
     } catch (err:any) {
       console.error(err);
      

@@ -24,7 +24,8 @@ export const StudentCard = ({ student, onViewDetails, onAddViolation, onChangePr
   const lastViolationDate = student.lastViolation 
     ? new Date(student.lastViolation).toLocaleDateString()
     : "No violations";
-
+  
+  const profilePicUrl = student.profilePic? `${API_BASE.replace("/api", "")}${student.profilePic}?t=${Date.now()}` : null;
   return (
     <Card className="shadow-soft hover:shadow-medium transition-smooth group ">
       <CardHeader className="pb-3">
@@ -37,7 +38,7 @@ export const StudentCard = ({ student, onViewDetails, onAddViolation, onChangePr
              >
               {student.profilePic ? (
                 <img
-                 src={`${API_BASE.replace("/api", "")}${student.profilePic}`}
+                 src={profilePicUrl}
                  alt={`${student.firstName} profile`}
                  className="w-full h-full object-cover"
                />

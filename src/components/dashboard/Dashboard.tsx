@@ -26,7 +26,7 @@ export const Dashboard = () => {
   const [isViolationModalOpen, setIsViolationModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [students, setStudents] = useState<StudentWithViolations[]>([]);
-  const [stats, setStats] = useState<ViolationStats>(null);
+  const [stats, setStats] = useState<ViolationStats | null>(null);
 
   //profile state
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -42,13 +42,12 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api
 const student = localStorage.getItem("student");
 
 // Upload student profile picture
-const handleUploadProfilePic = async (id: string, file: File) => {
+const handleUploadProfilePic = async (id: string, file: File | null) => {
 
   try {
     const formData = new FormData();
     formData.append("profilePic", file);
 
-    // ✅ Use axios.post
     const res = await axios.post(
       `${API_BASE}/students/${id}/profile-pic`,
       formData,
@@ -59,28 +58,21 @@ const handleUploadProfilePic = async (id: string, file: File) => {
       }
     );
 
-    const updatedStudent: StudentWithViolations = res.data; 
+    const updatedStudent = res.data; 
 
     //  Update state to reflect new profile pic
-    setStudents((prev) => {
-      const updated = prev.map((s) =>
+    setStudents((prev) => 
+    prev.map((s) =>
         s._id === updatedStudent._id ? updatedStudent : s
-      );
-      localStorage.setItem("students", JSON.stringify(updated)); 
-      return updated;
-    });
-
-   
-    if (profileStudent && profileStudent._id === updatedStudent._id) {
-      setProfileStudent(updatedStudent);
-    }
+      )
+    );
 
    
   toast({
       title: "Profile Updated",
       description: "Profile picture updated successfully",
     });
-    window.location.reload();
+ 
    
   } catch (err: any) {
     console.error(err);
@@ -92,6 +84,14 @@ const handleUploadProfilePic = async (id: string, file: File) => {
   }
 };
 
+useEffect(() => {
+if(!profileStudent) return 
+
+const updated = students.find((s)=> s._id === profileStudent._id);
+if(updated){
+  setProfileStudent(updated)
+}
+},[students])
   // Filter students based on search and filters
   const filteredStudents = useMemo(() => {
     return students.filter(student => {
