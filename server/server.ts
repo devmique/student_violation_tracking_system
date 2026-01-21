@@ -1,20 +1,26 @@
+import dotenv from "dotenv"
+dotenv.config();
 import express, { Application, Request, Response} from "express";
 import mongoose from "mongoose";
-import dotenv from "dotenv"
 import cors from "cors";
 import Authentication from "./routes/auth";
 import Students from "./routes/students";
 import Violations from "./routes/violations";
 import Profile from "./routes/profile";
-dotenv.config();
 import path from "path";
+
 const app:Application = express();
 app.use(cors())
 app.use(express.json());
+
 mongoose
-.connect(process.env.MONGO_URI as string)
-.then(()=>console.log("MongoDB connected"))
-.catch((err) =>console.error("MongoDB connection error:", err));
+  .connect(process.env.MONGO_URI as string)
+  .then(() => {
+    console.log("✅ MongoDB connected");
+    console.log("👉 DB name:", mongoose.connection.name);
+  })
+  .catch(console.error);
+
 
 //authentication route
 app.use("/api/auth", Authentication);

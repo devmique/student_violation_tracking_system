@@ -14,10 +14,19 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + path.extname(file.originalname)),
 });
 
-const upload = multer({ storage });
+//image only filter
+const fileFilter = (req: Request, file: any, cb: any)=>{
+  const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+  if(allowedTypes.includes(file.mimetype)) cb(null, true);
+  else cb(new Error("Only images are allowed"), false);
+}
+
+const upload = multer({ storage, fileFilter,
+  limits: {fileSize: 2 * 1024 * 1024} // 2MB limit
+ });
 
 
-// PATCH: Update profile picture
+ 
 router.post(
   "/:id/profile-pic",
   authMiddleware,
