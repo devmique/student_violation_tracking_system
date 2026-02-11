@@ -8,6 +8,8 @@ import Students from "./routes/students";
 import Violations from "./routes/violations";
 import Profile from "./routes/profile";
 import path from "path";
+import dns from "node:dns/promises";
+dns.setServers(["1.1.1.1"]);
 
 const app:Application = express();
 app.use(cors())
@@ -16,8 +18,7 @@ app.use(express.json());
 mongoose
   .connect(process.env.MONGO_URI as string)
   .then(() => {
-    console.log("✅ MongoDB connected");
-    console.log("👉 DB name:", mongoose.connection.name);
+    console.log("MongoDB connected");
   })
   .catch(console.error);
 
