@@ -42,8 +42,8 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api
 const student = localStorage.getItem("student");
 
 // Upload student profile picture
-const handleUploadProfilePic = async (id: string, file: File | null) => {
-
+const handleUploadProfilePic = async (id: string, file: File) => {
+  if (!file) return; 
   try {
     const formData = new FormData();
     formData.append("profilePic", file);
@@ -61,11 +61,14 @@ const handleUploadProfilePic = async (id: string, file: File | null) => {
     const updatedStudent = res.data; 
 
     //  Update state to reflect new profile pic
-    setStudents((prev) => 
-    prev.map((s) =>
-        s._id === updatedStudent._id ? updatedStudent : s
-      )
-    );
+   setStudents(prev =>
+    prev.map(s =>
+      s._id === updatedStudent._id
+      ? { ...s, ...updatedStudent }
+      : s
+  )
+);
+
 
    
   toast({
