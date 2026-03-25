@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import * as Tabs from "@radix-ui/react-tabs";
 import { useTheme } from "next-themes";
+import { Eye, EyeOff } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner"
 import logo from "@/assets/DON-BOSCO-COLLEGE-LOGO.png"
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
@@ -31,6 +33,11 @@ export const Login = () => {
   const [username, setUsername] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
+
+  //show password states
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegPassword, setShowRegPassword] = useState(false);
+ 
 
   // Handle Login
   const handleLogin = async (e: React.FormEvent) => {
@@ -136,19 +143,28 @@ export const Login = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
-                <Input
-                  type="password"
+                <div className="relative">
+                  <Input
+                  type={showLoginPassword ? "text" : "password"}
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowLoginPassword(!showLoginPassword)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-500"
+                 >
+                 {showLoginPassword ? <EyeOff /> : <Eye />}
+                </button>
+             </div>
                 <Button
                   type="submit"
                   className="w-full bg-primary text-primary-foreground hover:bg-primary-hover"
                   disabled={loading}
                 >
-                  {loading ? "Logging in..." : "Login"}
+                  {loading ? <Spinner /> : "Login"}
                 </Button>
               </form>
             </Tabs.Content>
@@ -170,19 +186,29 @@ export const Login = () => {
                   onChange={(e) => setRegEmail(e.target.value)}
                   required
                 />
-                <Input
-                  type="password"
-                  placeholder="Password"
-                  value={regPassword}
-                  onChange={(e) => setRegPassword(e.target.value)}
-                  required
-                />
+                <div className="relative">
+               <Input
+                 type={showRegPassword ? "text" : "password"}
+                 placeholder="Password"
+                 value={regPassword}
+                 onChange={(e) => setRegPassword(e.target.value)}
+                 required
+               />
+               <button
+                 type="button"
+                 onClick={() => setShowRegPassword(!showRegPassword)}
+                 className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-500"
+               >
+                 {showRegPassword ? <EyeOff /> : <Eye />}
+               </button>
+             </div>
+
                 <Button
                   type="submit"
                   className="w-full bg-primary text-primary-foreground hover:bg-primary-hover"
                   disabled={loading}
                 >
-                  {loading ? "Registering..." : "Register"}
+                  {loading ? <Spinner /> : "Register"}
                 </Button>
               </form>
             </Tabs.Content>

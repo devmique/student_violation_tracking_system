@@ -2,7 +2,7 @@ import { Search,  LogOut, User, Trash, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
-
+import { useNavigate } from "react-router-dom";
 import logo from "@/assets/DON-BOSCO-COLLEGE-LOGO.png"
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
@@ -28,7 +28,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api
 
 
 export const Header = ({ onSearch, searchQuery }: HeaderProps) => {
- 
+  const navigate = useNavigate();
   const storedUser = localStorage.getItem("user");
     const token = localStorage.getItem("token");
 
@@ -118,7 +118,13 @@ const { toast } = useToast();
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <div className="w-10 h-10  rounded-lg flex items-center justify-center">
-                <img src={logo} alt="logo" />
+                <img src={logo} alt="logo" className="cursor-pointer" onClick = {()=>{
+                  if (window.location.pathname === "/") {
+                  window.location.reload();
+                 } else {
+                   navigate("/");
+                 }
+                }} />
       
               </div>
               <div>
@@ -164,7 +170,7 @@ const { toast } = useToast();
                 
                   src={currentUser.profilePic}
                   alt="User Avatar"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover cursor-pointer"
                 />
               ) : (
                 <User className="h-6 w-6 text-primary-foreground" />
