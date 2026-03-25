@@ -238,6 +238,73 @@ const handleSubmitViolation = async (violationData: ViolationData) => {
     setSelectedProgram("All");
     setSelectedYear("All");
   };
+ 
+  //delete student
+  const handleDeleteStudents = async (student: StudentWithViolations) => {
+  try {
+    await axios.delete(`${API_BASE}/students/${student._id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    // Remove from UI instantly (no refetch needed)
+    setStudents((prev) => prev.filter((s) => s._id !== student._id));
+
+    //  Update stats (optional but better UX)
+    const resStats = await axios.get(`${API_BASE}/violations/stats`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setStats(resStats.data);
+
+    toast({
+      title: "Student Deleted",
+      description: `${student.firstName} ${student.lastName} has been removed.`,
+    });
+
+  } catch (err) {
+    console.error("Delete student error:", err);
+    toast({
+      title: "Error",
+      description: "Failed to delete student",
+      variant: "destructive",
+    });
+  }
+};
+
+//delete violation
+const handleDeleteViolation = async (id: string) => {
+  try {
+    await axios.delete(`${API_BASE}/violations/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    //  Update UI without refetch
+    setStudents((prev) =>
+      prev.map((student) => ({
+        ...student,
+        violations: student.violations.filter((v) => v._id !== id),
+      }))
+    );
+
+    //  Refresh stats
+    const resStats = await axios.get(`${API_BASE}/violations/stats`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setStats(resStats.data);
+
+    toast({
+      title: "Violation Deleted",
+      description: "The violation has been removed.",
+    });
+
+  } catch (err) {
+    console.error("Delete violation error:", err);
+    toast({
+      title: "Error",
+      description: "Failed to delete violation",
+      variant: "destructive",
+    });
+  }
+};
 
   return (
     <div className="min-h-screen bg-background">
@@ -369,6 +436,8 @@ const handleSubmitViolation = async (violationData: ViolationData) => {
         onClose={() => setIsDetailModalOpen(false)}
         student={selectedStudent}
         onAddViolation={handleAddViolation}
+        onDeleteStudent={handleDeleteStudents}
+        onDeleteViolation={handleDeleteViolation}
       />
     </div>
   );

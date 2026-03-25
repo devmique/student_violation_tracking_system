@@ -3,16 +3,20 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Mail, User, AlertCircle, Eye, Plus } from "lucide-react";
 import { StudentWithViolations } from "@/types/student";
+import { useState } from "react";
 
 interface StudentCardProps {
   student: StudentWithViolations;
   onViewDetails: (student: StudentWithViolations) => void;
   onAddViolation: (student: StudentWithViolations) => void;
   onChangeProfilePic: (student: StudentWithViolations) => void; 
+
 }
 
-export const StudentCard = ({ student, onViewDetails, onAddViolation, onChangeProfilePic, }: StudentCardProps) => {
+export const StudentCard = ({ student, onViewDetails, onAddViolation, onChangeProfilePic }: StudentCardProps) => {
   const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+
+
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case "Major": return "bg-warning text-warning-foreground";
@@ -138,6 +142,8 @@ export const StudentCard = ({ student, onViewDetails, onAddViolation, onChangePr
             <Plus className="h-4 w-4 mr-2" />
             Add Violation
           </Button>
+  
+
         </div>
       </CardContent>
     </Card>

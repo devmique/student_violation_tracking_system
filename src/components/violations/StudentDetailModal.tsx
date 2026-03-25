@@ -4,18 +4,33 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { StudentWithViolations, Violation } from "@/types/student";
-import { User, Mail, Calendar, AlertTriangle, FileText, Clock, Plus } from "lucide-react";
+import { User, Mail, Calendar, AlertTriangle, FileText, Clock, Plus, Trash } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+} from "@/components/ui/alert-dialog";
+import { useState } from "react";
+
 
 interface StudentDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   student: StudentWithViolations | null;
   onAddViolation: (student: StudentWithViolations) => void;
+  onDeleteStudent: (student: StudentWithViolations) => void;
+  onDeleteViolation: (id: string) => void;
 }
 
-export const StudentDetailModal = ({ isOpen, onClose, student, onAddViolation }: StudentDetailModalProps) => {
+export const StudentDetailModal = ({ isOpen, onClose, student, onAddViolation, onDeleteStudent, onDeleteViolation }: StudentDetailModalProps) => {
+  const [openDelete, setOpenDelete] = useState(false);
   if (!student) return null;
-
+   
   const getSeverityColor = (severity: string) => {
     switch (severity) {
    
@@ -39,8 +54,9 @@ export const StudentDetailModal = ({ isOpen, onClose, student, onAddViolation }:
 
             <span>Student Details</span>
           </DialogTitle>
+             
         </DialogHeader>
-
+    
         <div className="space-y-6">
           {/* Student Information */}
           <Card className="">
@@ -117,7 +133,7 @@ export const StudentDetailModal = ({ isOpen, onClose, student, onAddViolation }:
                 <ScrollArea className="h-[300px]">
                   <div className="space-y-4">
                     {sortedViolations.map((violation, index) => (
-                      <ViolationItem key={violation._id} violation={violation} isLatest={index === 0} />
+                      <ViolationItem key={violation._id} violation={violation} isLatest={index === 0}  onDeleteViolation={onDeleteViolation} />
                     ))}
                   </div>
                 </ScrollArea>
@@ -131,17 +147,50 @@ export const StudentDetailModal = ({ isOpen, onClose, student, onAddViolation }:
           </Card>
         </div>
 
-        <div className="flex justify-end pt-4">
+        <div className="flex justify-between pt-4">
+            <Button 
+               variant="destructive" 
+               size="sm"
+               onClick={() => setOpenDelete(true)}
+            >
+               Delete Student
+            </Button>
           <Button variant="outline" onClick={onClose}>
             Close
           </Button>
+
+          {/* Delete Student AlertDialog */}
+        <AlertDialog open={openDelete} onOpenChange={setOpenDelete}>
+  <AlertDialogContent>
+    <AlertDialogHeader>
+      <AlertDialogTitle>Delete Student?</AlertDialogTitle>
+      <AlertDialogDescription>
+        This action cannot be undone. This will permanently delete 
+        <strong> {student.firstName} {student.lastName} </strong> 
+        and all associated violations.
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+
+    <AlertDialogFooter>
+      <AlertDialogCancel>Cancel</AlertDialogCancel>
+      <AlertDialogAction
+        onClick={() => onDeleteStudent(student)}
+        className="bg-destructive text-white hover:bg-destructive/90"
+      >
+        Delete
+      </AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>
         </div>
       </DialogContent>
     </Dialog>
   );
 };
 
-const ViolationItem = ({ violation, isLatest }: { violation: Violation; isLatest: boolean }) => {
+const ViolationItem = ({ violation, isLatest, onDeleteViolation }: { violation: Violation; isLatest: boolean; onDeleteViolation: (id: string) => void; }) => {
+  const [openDelete, setOpenDelete] = useState(false);
+
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case "Major": return "bg-warning text-warning-foreground";
@@ -164,6 +213,13 @@ const ViolationItem = ({ violation, isLatest }: { violation: Violation; isLatest
         <div className="flex items-center space-x-2 text-sm text-muted-foreground">
           <Calendar className="h-4 w-4" />
           <span>{new Date(violation.dateCommitted).toLocaleDateString()}</span>
+           <Button
+             variant="destructive"
+             size="sm"
+            onClick={() => setOpenDelete(true)}
+            >
+             <Trash />
+           </Button>
         </div>
       </div>
 
@@ -189,6 +245,29 @@ const ViolationItem = ({ violation, isLatest }: { violation: Violation; isLatest
           </div>
         </div>
       </div>
+      {/* Delete Violation AlertDialog */}
+      <AlertDialog open={openDelete} onOpenChange={setOpenDelete}>
+  <AlertDialogContent>
+    <AlertDialogHeader>
+      <AlertDialogTitle>Delete Violation?</AlertDialogTitle>
+      <AlertDialogDescription>
+        This action cannot be undone. This will permanently delete this violation.
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+
+    <AlertDialogFooter>
+      <AlertDialogCancel>Cancel</AlertDialogCancel>
+      <AlertDialogAction
+        onClick={() => onDeleteViolation(violation._id)}
+        className="bg-destructive text-white hover:bg-destructive/90"
+      >
+        Delete
+      </AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>
+
     </div>
+
   );
 };
