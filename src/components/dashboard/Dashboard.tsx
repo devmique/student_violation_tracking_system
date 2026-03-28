@@ -254,7 +254,7 @@ const handleSubmitViolation = async (violationData: ViolationData) => {
       headers: { Authorization: `Bearer ${token}` },
     });
     setStats(resStats.data);
-
+    setIsDetailModalOpen(false);
     toast({
       title: "Student Deleted",
       description: `${student.firstName} ${student.lastName} has been removed.`,

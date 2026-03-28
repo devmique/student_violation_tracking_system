@@ -122,7 +122,7 @@ router.get("/", authMiddleware, async (req: AuthRequest, res: Response) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    // ✅ Only fetch students belonging to this user
+    //  Only fetch students belonging to this user
     const students: IStudent[] = await Student.find({ user: req.user.id });
     const violations: IViolation[] = await Violation.find();
 
@@ -151,6 +151,27 @@ router.get("/", authMiddleware, async (req: AuthRequest, res: Response) => {
     res.json(studentsWithViolations);
   } catch (err: any) {
     console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// DELETE student (with cascade delete violations)
+router.delete("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const student = await Student.findOneAndDelete({
+      _id: req.params.id,
+      user: req.user?.id,
+    });
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    // delete all violations of that student
+    await Violation.deleteMany({ studentId: student.studentId });
+
+    res.json({ success: true, message: "Student deleted" });
+  } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
 });

@@ -5,7 +5,7 @@ import { authMiddleware, AuthRequest } from "../middleware/auth";
 
 const router = express.Router();
 
-// ✅ Add new violation
+//  Add new violation
 router.post("/", authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ message: "Unauthorized" });
@@ -39,7 +39,7 @@ router.post("/", authMiddleware, async (req: AuthRequest, res: Response) => {
   }
 });
 
-// ✅ Get all violations for logged-in user’s students
+//  Get all violations for logged-in user’s students
 router.get("/", authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ message: "Unauthorized" });
@@ -54,7 +54,7 @@ router.get("/", authMiddleware, async (req: AuthRequest, res: Response) => {
   }
 });
 
-// ✅ Update a violation
+//  Update a violation
 router.put("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ message: "Unauthorized" });
@@ -73,7 +73,7 @@ router.put("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
   }
 });
 
-// ✅ Delete a violation
+//  Delete a violation
 router.delete("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ message: "Unauthorized" });
@@ -92,7 +92,7 @@ router.delete("/:id", authMiddleware, async (req: AuthRequest, res: Response) =>
   }
 });
 
-// ✅ Get violation stats (only for this user’s students)
+//  Get violation stats (only for this user’s students)
 router.get("/stats", authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ message: "Unauthorized" });
