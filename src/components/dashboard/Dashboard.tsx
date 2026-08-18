@@ -295,6 +295,39 @@ const handleUpdateStudent = async (id: string, data: { course: string; program: 
   }
 };
 
+//toggle violation resolved status
+const handleToggleViolationResolved = async (id: string, resolved: boolean) => {
+  try {
+    const res = await axios.put(
+      `${API_BASE}/violations/${id}`,
+      { resolved },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    const updated = res.data;
+
+    setStudents((prev) =>
+      prev.map((student) => ({
+        ...student,
+        violations: student.violations.map((v) =>
+          v._id === id ? { ...v, resolved: updated.resolved } : v
+        ),
+      }))
+    );
+
+    const resStats = await axios.get(`${API_BASE}/violations/stats`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setStats(resStats.data);
+  } catch (err) {
+    console.error("Toggle violation resolved error:", err);
+    toast({
+      title: "Error",
+      description: "Failed to update violation status.",
+      variant: "destructive",
+    });
+  }
+};
+
 //delete violation
 const handleDeleteViolation = async (id: string) => {
   try {
@@ -464,6 +497,7 @@ const handleDeleteViolation = async (id: string) => {
         onDeleteStudent={handleDeleteStudents}
         onDeleteViolation={handleDeleteViolation}
         onUpdateStudent={handleUpdateStudent}
+        onToggleViolationResolved={handleToggleViolationResolved}
       />
     </div>
   );

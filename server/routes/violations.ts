@@ -112,6 +112,8 @@ router.get("/stats", authMiddleware, async (req: AuthRequest, res: Response) => 
       major: violations.filter((v) => v.severity === "Major").length,
       thisMonth: violations.filter((v) => v.dateCommitted >= thisMonthStart).length,
       thisWeek: violations.filter((v) => v.dateCommitted >= thisWeekStart).length,
+      resolved: violations.filter((v) => v.resolved).length,
+      unresolved: violations.filter((v) => !v.resolved).length,
     });
   } catch (err: any) {
     res.status(500).json({ message: "Server error" });

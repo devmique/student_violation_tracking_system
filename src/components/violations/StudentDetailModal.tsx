@@ -43,9 +43,10 @@ interface StudentDetailModalProps {
   onDeleteStudent: (student: StudentWithViolations) => void;
   onDeleteViolation: (id: string) => void;
   onUpdateStudent: (id: string, data: { course: string; program: string; year: number }) => void;
+  onToggleViolationResolved: (id: string, resolved: boolean) => void;
 }
 
-export const StudentDetailModal = ({ isOpen, onClose, student, onAddViolation, onDeleteStudent, onDeleteViolation, onUpdateStudent }: StudentDetailModalProps) => {
+export const StudentDetailModal = ({ isOpen, onClose, student, onAddViolation, onDeleteStudent, onDeleteViolation, onUpdateStudent, onToggleViolationResolved }: StudentDetailModalProps) => {
   const [openDelete, setOpenDelete] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({ course: "", program: "", year: "" });
@@ -230,7 +231,7 @@ export const StudentDetailModal = ({ isOpen, onClose, student, onAddViolation, o
                 <ScrollArea className="h-[300px]">
                   <div className="space-y-4">
                     {sortedViolations.map((violation, index) => (
-                      <ViolationItem key={violation._id} violation={violation} isLatest={index === 0}  onDeleteViolation={onDeleteViolation} />
+                      <ViolationItem key={violation._id} violation={violation} isLatest={index === 0}  onDeleteViolation={onDeleteViolation} onToggleViolationResolved={onToggleViolationResolved} />
                     ))}
                   </div>
                 </ScrollArea>
@@ -285,7 +286,7 @@ export const StudentDetailModal = ({ isOpen, onClose, student, onAddViolation, o
   );
 };
 
-const ViolationItem = ({ violation, isLatest, onDeleteViolation }: { violation: Violation; isLatest: boolean; onDeleteViolation: (id: string) => void; }) => {
+const ViolationItem = ({ violation, isLatest, onDeleteViolation, onToggleViolationResolved }: { violation: Violation; isLatest: boolean; onDeleteViolation: (id: string) => void; onToggleViolationResolved: (id: string, resolved: boolean) => void; }) => {
   const [openDelete, setOpenDelete] = useState(false);
 
   const getSeverityColor = (severity: string) => {
@@ -296,12 +297,23 @@ const ViolationItem = ({ violation, isLatest, onDeleteViolation }: { violation: 
     }
   };
 
+  const resolvedColor = violation.resolved
+    ? "bg-success text-success-foreground"
+    : "bg-danger text-danger-foreground";
+
   return (
     <div className={`p-4 rounded-lg border ${isLatest ? 'bg-muted/50 border-primary/20' : 'bg-background'} transition-smooth`}>
       <div className="flex items-start justify-between mb-2">
         <div className="flex items-center space-x-2">
           <Badge className={getSeverityColor(violation.severity)} variant="secondary">
             {violation.severity}
+          </Badge>
+          <Badge
+            className={`${resolvedColor} cursor-pointer`}
+            variant="secondary"
+            onClick={() => onToggleViolationResolved(violation._id, !violation.resolved)}
+          >
+            {violation.resolved ? "Resolved" : "Not Resolved"}
           </Badge>
           {isLatest && (
             <Badge variant="outline" className="text-xs">Latest</Badge>

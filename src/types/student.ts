@@ -22,6 +22,7 @@ export interface Violation {
   createdAt: Date;
   createdBy: string;
   notes?: string;
+  resolved: boolean;
 }
 
 export type Course = 
@@ -44,6 +45,8 @@ export interface ViolationStats {
   major: number;
   thisMonth: number;
   thisWeek: number;
+  resolved: number;
+  unresolved: number;
 }
 
 export interface ViolationData{

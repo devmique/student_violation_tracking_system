@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, Users, Clock, TrendingUp } from "lucide-react";
+import { AlertTriangle, Users, Clock, TrendingUp, CheckCircle2, XCircle } from "lucide-react";
 import { ViolationStats } from "@/types/student";
 //import { Skeleton } from "../ui/skeleton";
 export interface StatsCardsProps {
@@ -40,11 +40,25 @@ export const StatsCards = ({ stats, studentCount }: StatsCardsProps) => {
       bgColor: "bg-danger/10",
       subtitle: `${stats.major} major, ${stats.minor} minor`,
     },
+    {
+      title: "Resolved",
+      value: stats.resolved.toString(),
+      icon: CheckCircle2,
+      color: "text-success",
+      bgColor: "bg-success/10",
+    },
+    {
+      title: "Not Resolved",
+      value: stats.unresolved.toString(),
+      icon: XCircle,
+      color: "text-danger",
+      bgColor: "bg-danger/10",
+    },
   ];
 
   return (
- 
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {cards.map((card, index) => (
         <Card key={index} className="shadow-soft hover:shadow-medium transition-smooth">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

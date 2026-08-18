@@ -10,6 +10,7 @@ export interface IViolation extends Document {
     createdAt: Date;
     createdBy: string;
     notes?: string;
+    resolved: boolean;
 }
 
 const ViolationSchema: Schema = new Schema<IViolation>({
@@ -19,6 +20,7 @@ const ViolationSchema: Schema = new Schema<IViolation>({
     dateCommitted: { type: Date, required: true},
     createdBy: { type: String, required: true},
     notes: {type:String},
+    resolved: { type: Boolean, default: false },
 
 
     
