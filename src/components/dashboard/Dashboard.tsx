@@ -8,7 +8,8 @@ import { StudentCard } from "@/components/students/StudentCard";
 import { StudentFilters } from "@/components/students/StudentFilters";
 import { ViolationModal } from "@/components/violations/ViolationModal";
 import { StudentDetailModal } from "@/components/violations/StudentDetailModal";
-import { StudentWithViolations, Course, Program, ViolationData, StudentData, ViolationStats } from "@/types/student";
+import { StudentWithViolations, Course, Program, ViolationData, StudentData, ViolationStats, ViolationTrendPoint } from "@/types/student";
+import { ViolationsTrendChart } from "./ViolationsTrendChart";
 import { useToast } from "@/hooks/use-toast";
 import { StudentModal } from "@/components/students/StudentModal";
 import axios from "axios";
@@ -27,6 +28,7 @@ export const Dashboard = () => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [students, setStudents] = useState<StudentWithViolations[]>([]);
   const [stats, setStats] = useState<ViolationStats | null>(null);
+  const [trend, setTrend] = useState<ViolationTrendPoint[]>([]);
 
   //profile state
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -40,6 +42,16 @@ export const Dashboard = () => {
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
 const student = localStorage.getItem("student");
+
+// Refresh violation stats + monthly trend together
+const fetchStats = async () => {
+  const [resStats, resTrend] = await Promise.all([
+    axios.get(`${API_BASE}/violations/stats`, { headers: { Authorization: `Bearer ${token}` } }),
+    axios.get(`${API_BASE}/violations/trend`, { headers: { Authorization: `Bearer ${token}` } }),
+  ]);
+  setStats(resStats.data);
+  setTrend(resTrend.data);
+};
 
 // Upload student profile picture
 const handleUploadProfilePic = async (id: string, file: File) => {
@@ -125,12 +137,7 @@ useEffect(() => {
       localStorage.setItem("students", JSON.stringify(dataStudents));
 
       // ✅ Fetch stats
-      const resStats = await axios.get(`${API_BASE}/violations/stats`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setStats(resStats.data);
+      await fetchStats();
 
     } catch (err) {
       console.error("Fetch error:", err);
@@ -210,10 +217,7 @@ const handleSubmitViolation = async (violationData: ViolationData) => {
     localStorage.setItem("students", JSON.stringify(updatedStudents)); // ✅ persist
 
     // ✅ Refresh stats
-    const resStats = await axios.get(`${API_BASE}/violations/stats`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    setStats(resStats.data);
+    await fetchStats();
 
     toast({
       title: "Violation Added",
@@ -250,10 +254,7 @@ const handleSubmitViolation = async (violationData: ViolationData) => {
     setStudents((prev) => prev.filter((s) => s._id !== student._id));
 
     //  Update stats (optional but better UX)
-    const resStats = await axios.get(`${API_BASE}/violations/stats`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    setStats(resStats.data);
+    await fetchStats();
     setIsDetailModalOpen(false);
     toast({
       title: "Student Deleted",
@@ -314,10 +315,7 @@ const handleToggleViolationResolved = async (id: string, resolved: boolean) => {
       }))
     );
 
-    const resStats = await axios.get(`${API_BASE}/violations/stats`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    setStats(resStats.data);
+    await fetchStats();
   } catch (err) {
     console.error("Toggle violation resolved error:", err);
     toast({
@@ -344,10 +342,7 @@ const handleDeleteViolation = async (id: string) => {
     );
 
     //  Refresh stats
-    const resStats = await axios.get(`${API_BASE}/violations/stats`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    setStats(resStats.data);
+    await fetchStats();
 
     toast({
       title: "Violation Deleted",
@@ -389,6 +384,10 @@ const handleDeleteViolation = async (id: string) => {
   <StatsCards stats={stats} studentCount={students.length} />
 )}
 
+        </div>
+
+        <div className="mb-8">
+          <ViolationsTrendChart data={trend} />
         </div>
 
         {/* Filters and Content */}

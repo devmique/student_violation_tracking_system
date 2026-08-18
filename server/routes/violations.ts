@@ -120,4 +120,30 @@ router.get("/stats", authMiddleware, async (req: AuthRequest, res: Response) => 
   }
 });
 
+//  Get violation counts per month for the last 6 months
+router.get("/trend", authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+
+    const students = await Student.find({ user: req.user.id });
+    const studentIds = students.map((s) => s.studentId);
+
+    const violations: IViolation[] = await Violation.find({ studentId: { $in: studentIds } });
+    const now = new Date();
+
+    const trend = Array.from({ length: 6 }, (_, i) => {
+      const monthStart = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+      const monthEnd = new Date(now.getFullYear(), now.getMonth() - (5 - i) + 1, 1);
+      const count = violations.filter(
+        (v) => v.dateCommitted >= monthStart && v.dateCommitted < monthEnd
+      ).length;
+      return { month: monthStart.toLocaleString("default", { month: "short", year: "numeric" }), count };
+    });
+
+    res.json(trend);
+  } catch (err: any) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 export default router;

@@ -49,6 +49,11 @@ export interface ViolationStats {
   unresolved: number;
 }
 
+export interface ViolationTrendPoint {
+  month: string;
+  count: number;
+}
+
 export interface ViolationData{
   description: string;
   severity: ViolationSeverity;
