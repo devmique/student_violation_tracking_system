@@ -155,6 +155,28 @@ router.get("/", authMiddleware, async (req: AuthRequest, res: Response) => {
   }
 });
 
+// PUT /api/students/:id → Update course, program, year
+router.put("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const { course, program, year } = req.body;
+
+    const student = await Student.findOneAndUpdate(
+      { _id: req.params.id, user: req.user?.id },
+      { course, program, year },
+      { new: true }
+    );
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    res.json({ success: true, student });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 // DELETE student (with cascade delete violations)
 router.delete("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
   try {

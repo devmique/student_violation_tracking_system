@@ -3,8 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { StudentWithViolations, Violation } from "@/types/student";
-import { User, Mail, Calendar, AlertTriangle, FileText, Clock, Plus, Trash } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { StudentWithViolations, Violation, Course, Program } from "@/types/student";
+import { User, Mail, Calendar, AlertTriangle, FileText, Clock, Plus, Trash, Pencil, Check, X as XIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,6 +24,16 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
 
+const courses: Course[] = [
+  "Information Technology",
+  "Automotive Aftersales",
+  "Electro Mechanic Technology",
+  "Mechanical Technology",
+];
+
+const programs: Program[] = ["BS", "BTVTED", "Diploma"];
+
+const years = [1, 2, 3, 4];
 
 interface StudentDetailModalProps {
   isOpen: boolean;
@@ -25,11 +42,29 @@ interface StudentDetailModalProps {
   onAddViolation: (student: StudentWithViolations) => void;
   onDeleteStudent: (student: StudentWithViolations) => void;
   onDeleteViolation: (id: string) => void;
+  onUpdateStudent: (id: string, data: { course: string; program: string; year: number }) => void;
 }
 
-export const StudentDetailModal = ({ isOpen, onClose, student, onAddViolation, onDeleteStudent, onDeleteViolation }: StudentDetailModalProps) => {
+export const StudentDetailModal = ({ isOpen, onClose, student, onAddViolation, onDeleteStudent, onDeleteViolation, onUpdateStudent }: StudentDetailModalProps) => {
   const [openDelete, setOpenDelete] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({ course: "", program: "", year: "" });
+
   if (!student) return null;
+
+  const startEdit = () => {
+    setEditData({ course: student.course, program: student.program, year: student.year.toString() });
+    setIsEditing(true);
+  };
+
+  const saveEdit = () => {
+    onUpdateStudent(student._id, {
+      course: editData.course,
+      program: editData.program,
+      year: parseInt(editData.year),
+    });
+    setIsEditing(false);
+  };
    
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -90,26 +125,88 @@ export const StudentDetailModal = ({ isOpen, onClose, student, onAddViolation, o
                 </Button>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-muted-foreground">Course</p>
-                  <p className="text-sm text-foreground">{student.course}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-muted-foreground">Program</p>
-                  <Badge variant="outline">{student.program}</Badge>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-muted-foreground">Year Level</p>
-                  <p className="text-sm text-foreground">Year {student.year}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-muted-foreground">Total Violations</p>
-                  <Badge variant={student.violationCount > 0 ? "destructive" : "secondary"}>
-                    {student.violations.length}
-                  </Badge>
-                </div>
+              <div className="flex items-center justify-between pt-4 border-t">
+                <span className="text-sm font-medium text-muted-foreground">Academic Info</span>
+                {isEditing ? (
+                  <div className="flex gap-1">
+                    <Button size="sm" variant="ghost" onClick={saveEdit}>
+                      <Check className="h-4 w-4" />
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}>
+                      <XIcon className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <Button size="sm" variant="ghost" onClick={startEdit}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
+
+              {isEditing ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Course</label>
+                    <Select value={editData.course} onValueChange={(val) => setEditData({ ...editData, course: val })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select course" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {courses.map((course) => (
+                          <SelectItem key={course} value={course}>{course}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Program</label>
+                    <Select value={editData.program} onValueChange={(val) => setEditData({ ...editData, program: val })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select program" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {programs.map((program) => (
+                          <SelectItem key={program} value={program}>{program}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Year Level</label>
+                    <Select value={editData.year} onValueChange={(val) => setEditData({ ...editData, year: val })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select year" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {years.map((year) => (
+                          <SelectItem key={year} value={year.toString()}>Year {year}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-muted-foreground">Course</p>
+                    <p className="text-sm text-foreground">{student.course}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-muted-foreground">Program</p>
+                    <Badge variant="outline">{student.program}</Badge>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-muted-foreground">Year Level</p>
+                    <p className="text-sm text-foreground">Year {student.year}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-muted-foreground">Total Violations</p>
+                    <Badge variant={student.violationCount > 0 ? "destructive" : "secondary"}>
+                      {student.violations.length}
+                    </Badge>
+                  </div>
+                </div>
+              )}
 
               {student.email && (
                 <div className="flex items-center space-x-2 pt-2 border-t">

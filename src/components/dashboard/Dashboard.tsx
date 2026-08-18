@@ -270,6 +270,31 @@ const handleSubmitViolation = async (violationData: ViolationData) => {
   }
 };
 
+//update student course/program/year
+const handleUpdateStudent = async (id: string, data: { course: string; program: string; year: number }) => {
+  try {
+    const res = await axios.put(`${API_BASE}/students/${id}`, data, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const updated = res.data.student;
+
+    setStudents((prev) => prev.map((s) => (s._id === id ? { ...s, ...updated } : s)));
+    setSelectedStudent((prev) => (prev && prev._id === id ? { ...prev, ...updated } : prev));
+
+    toast({
+      title: "Student Updated",
+      description: "Academic info updated successfully.",
+    });
+  } catch (err) {
+    console.error("Update student error:", err);
+    toast({
+      title: "Error",
+      description: "Failed to update student",
+      variant: "destructive",
+    });
+  }
+};
+
 //delete violation
 const handleDeleteViolation = async (id: string) => {
   try {
@@ -438,6 +463,7 @@ const handleDeleteViolation = async (id: string) => {
         onAddViolation={handleAddViolation}
         onDeleteStudent={handleDeleteStudents}
         onDeleteViolation={handleDeleteViolation}
+        onUpdateStudent={handleUpdateStudent}
       />
     </div>
   );
