@@ -3,7 +3,7 @@ import path from "path";
 import multer from "multer";
 import Student, { IStudent } from "../models/Student";
 import Violation, { IViolation } from "../models/Violation";
-import { authMiddleware, AuthRequest } from "../middleware/auth";
+import { authMiddleware, requireAdmin, AuthRequest } from "../middleware/auth";
 
 const router = express.Router();
 
@@ -30,6 +30,7 @@ const upload = multer({ storage, fileFilter,
 router.post(
   "/:id/profile-pic",
   authMiddleware,
+  requireAdmin,
   upload.single("profilePic"),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -59,6 +60,7 @@ router.post(
 router.delete(
   "/:id/profile-pic",
   authMiddleware,
+  requireAdmin,
   async (req: AuthRequest, res: Response) => {
     try {
       const student = await Student.findByIdAndUpdate(
@@ -81,7 +83,7 @@ router.delete(
 
 
 // POST /api/students  → Create student linked to logged-in user
-router.post("/", authMiddleware, async (req: AuthRequest, res: Response) => {
+router.post("/", authMiddleware, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
       return res.status(401).json({ message: "Unauthorized" });
@@ -115,15 +117,14 @@ router.post("/", authMiddleware, async (req: AuthRequest, res: Response) => {
   }
 });
 
-// GET /api/students → Get students for logged-in user with violations
+// GET /api/students → Get all students (shared pool) with violations
 router.get("/", authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    //  Only fetch students belonging to this user
-    const students: IStudent[] = await Student.find({ user: req.user.id });
+    const students: IStudent[] = await Student.find({});
     const violations: IViolation[] = await Violation.find();
 
     const studentsWithViolations = students.map((student) => {
@@ -156,12 +157,12 @@ router.get("/", authMiddleware, async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /api/students/:id → Update course, program, year
-router.put("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
+router.put("/:id", authMiddleware, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const { course, program, year } = req.body;
 
-    const student = await Student.findOneAndUpdate(
-      { _id: req.params.id, user: req.user?.id },
+    const student = await Student.findByIdAndUpdate(
+      req.params.id,
       { course, program, year },
       { new: true }
     );
@@ -178,12 +179,9 @@ router.put("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE student (with cascade delete violations)
-router.delete("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
+router.delete("/:id", authMiddleware, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
-    const student = await Student.findOneAndDelete({
-      _id: req.params.id,
-      user: req.user?.id,
-    });
+    const student = await Student.findByIdAndDelete(req.params.id);
 
     if (!student) {
       return res.status(404).json({ message: "Student not found" });

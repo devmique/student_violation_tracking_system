@@ -2,8 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
 export interface AuthRequest extends Request {
-  user?: { id: string, username?: string };
-  
+  user?: { id: string, username?: string, role?: string };
+
 }
 
 export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -14,12 +14,19 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string; username: string;} ;
-      req.user = { id: decoded.id, username: decoded.username,};
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string; username: string; role: string;} ;
+      req.user = { id: decoded.id, username: decoded.username, role: decoded.role };
     next();
   } catch (err) {
     res.status(401).json({ message: "Invalid token" });
   }
+};
+
+export const requireAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
+  if (req.user?.role !== "admin") {
+    return res.status(403).json({ message: "Admin access required" });
+  }
+  next();
 };
 
 

@@ -1,12 +1,12 @@
 import express, { Response } from "express";
 import Violation, { IViolation } from "../models/Violation";
 import Student from "../models/Student";
-import { authMiddleware, AuthRequest } from "../middleware/auth";
+import { authMiddleware, requireAdmin, AuthRequest } from "../middleware/auth";
 
 const router = express.Router();
 
 //  Add new violation
-router.post("/", authMiddleware, async (req: AuthRequest, res: Response) => {
+router.post("/", authMiddleware, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ message: "Unauthorized" });
 
@@ -16,10 +16,9 @@ router.post("/", authMiddleware, async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    // ensure student belongs to this user
-    const student = await Student.findOne({ studentId, user: req.user.id,});
+    const student = await Student.findOne({ studentId });
     if (!student) {
-      return res.status(404).json({ message: "Student not found or not yours" });
+      return res.status(404).json({ message: "Student not found" });
     }
 
     const violation = new Violation({
@@ -39,15 +38,12 @@ router.post("/", authMiddleware, async (req: AuthRequest, res: Response) => {
   }
 });
 
-//  Get all violations for logged-in user’s students
+//  Get all violations (shared pool)
 router.get("/", authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ message: "Unauthorized" });
 
-    const students = await Student.find({ user: req.user.id });
-    const studentIds = students.map((s) => s.studentId);
-
-    const violations: IViolation[] = await Violation.find({ studentId: { $in: studentIds } });
+    const violations: IViolation[] = await Violation.find({});
     res.json(violations);
   } catch (err: any) {
     res.status(500).json({ message: "Server error" });
@@ -55,18 +51,13 @@ router.get("/", authMiddleware, async (req: AuthRequest, res: Response) => {
 });
 
 //  Update a violation
-router.put("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
+router.put("/:id", authMiddleware, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ message: "Unauthorized" });
 
-    const violation = await Violation.findById(req.params.id);
-    if (!violation) return res.status(404).json({ message: "Violation not found" });
-
-    // check student ownership
-    const student = await Student.findOne({ studentId: violation.studentId, user: req.user.id });
-    if (!student) return res.status(403).json({ message: "Not authorized" });
-
     const updated = await Violation.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updated) return res.status(404).json({ message: "Violation not found" });
+
     res.json(updated);
   } catch (err: any) {
     res.status(500).json({ message: "Server error" });
@@ -74,33 +65,25 @@ router.put("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
 });
 
 //  Delete a violation
-router.delete("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
+router.delete("/:id", authMiddleware, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ message: "Unauthorized" });
 
-    const violation = await Violation.findById(req.params.id);
+    const violation = await Violation.findByIdAndDelete(req.params.id);
     if (!violation) return res.status(404).json({ message: "Violation not found" });
 
-    // check student ownership
-    const student = await Student.findOne({ studentId: violation.studentId, user: req.user.id });
-    if (!student) return res.status(403).json({ message: "Not authorized" });
-
-    await Violation.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: "Violation deleted" });
   } catch (err: any) {
     res.status(500).json({ message: "Server error" });
   }
 });
 
-//  Get violation stats (only for this user’s students)
+//  Get violation stats (shared pool)
 router.get("/stats", authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ message: "Unauthorized" });
 
-    const students = await Student.find({ user: req.user.id });
-    const studentIds = students.map((s) => s.studentId);
-
-    const violations: IViolation[] = await Violation.find({ studentId: { $in: studentIds } });
+    const violations: IViolation[] = await Violation.find({});
     const now = new Date();
     const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const thisWeekStart = new Date(now);
@@ -120,15 +103,12 @@ router.get("/stats", authMiddleware, async (req: AuthRequest, res: Response) => 
   }
 });
 
-//  Get violation counts per month for the last 6 months
+//  Get violation counts per month for the last 6 months (shared pool)
 router.get("/trend", authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) return res.status(401).json({ message: "Unauthorized" });
 
-    const students = await Student.find({ user: req.user.id });
-    const studentIds = students.map((s) => s.studentId);
-
-    const violations: IViolation[] = await Violation.find({ studentId: { $in: studentIds } });
+    const violations: IViolation[] = await Violation.find({});
     const now = new Date();
 
     const trend = Array.from({ length: 6 }, (_, i) => {

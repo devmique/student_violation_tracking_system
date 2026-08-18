@@ -9,6 +9,7 @@ import { StudentFilters } from "@/components/students/StudentFilters";
 import { ViolationModal } from "@/components/violations/ViolationModal";
 import { StudentDetailModal } from "@/components/violations/StudentDetailModal";
 import { StudentWithViolations, Course, Program, ViolationData, StudentData, ViolationStats, ViolationTrendPoint } from "@/types/student";
+import { AuthUser } from "@/types/user";
 import { ViolationsTrendChart } from "./ViolationsTrendChart";
 import { useToast } from "@/hooks/use-toast";
 import { StudentModal } from "@/components/students/StudentModal";
@@ -36,7 +37,8 @@ export const Dashboard = () => {
    const token = localStorage.getItem("token");
  
    const storedUser = localStorage.getItem("user");
-   const currentUser = storedUser ? JSON.parse(storedUser) : null;
+   const currentUser: AuthUser | null = storedUser ? JSON.parse(storedUser) : null;
+   const isAdmin = currentUser?.role === "admin";
 
   const { toast } = useToast();
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
@@ -426,13 +428,15 @@ const handleDeleteViolation = async (id: string) => {
                   Showing {filteredStudents.length} of {students.length} students
                 </p>
               </div>
-             <Button 
-               className="bg-primary text-primary-foreground hover:bg-primary-hover transition-smooth"
-               onClick={() => setIsStudentModalOpen(true)}
-             >
-               <Plus className="h-4 w-4 mr-2" />
-               Add New Student
-             </Button>
+             {isAdmin && (
+               <Button
+                 className="bg-primary text-primary-foreground hover:bg-primary-hover transition-smooth"
+                 onClick={() => setIsStudentModalOpen(true)}
+               >
+                 <Plus className="h-4 w-4 mr-2" />
+                 Add New Student
+               </Button>
+             )}
              <StudentModal
                isOpen={isStudentModalOpen}
                onClose={() => setIsStudentModalOpen(false)}
@@ -448,6 +452,7 @@ const handleDeleteViolation = async (id: string) => {
                   <StudentCard
                     key={student._id}
                     student={student}
+                    isAdmin={isAdmin}
                     onViewDetails={handleViewDetails}
                     onAddViolation={handleAddViolation}
                     onChangeProfilePic={handleOpenProfileModal}
@@ -492,6 +497,7 @@ const handleDeleteViolation = async (id: string) => {
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
         student={selectedStudent}
+        isAdmin={isAdmin}
         onAddViolation={handleAddViolation}
         onDeleteStudent={handleDeleteStudents}
         onDeleteViolation={handleDeleteViolation}

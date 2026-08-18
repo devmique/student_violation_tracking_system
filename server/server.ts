@@ -7,6 +7,7 @@ import Authentication from "./routes/auth";
 import Students from "./routes/students";
 import Violations from "./routes/violations";
 import Profile from "./routes/profile";
+import Users from "./routes/users";
 import path from "path";
 import dns from "node:dns/promises";
 dns.setServers(["1.1.1.1"]);
@@ -38,6 +39,9 @@ app.use("/api/students", Students)
 
 //violations route
 app.use("/api/violations", Violations)
+
+//users route
+app.use("/api/users", Users)
 
 
 

@@ -39,6 +39,7 @@ interface StudentDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   student: StudentWithViolations | null;
+  isAdmin: boolean;
   onAddViolation: (student: StudentWithViolations) => void;
   onDeleteStudent: (student: StudentWithViolations) => void;
   onDeleteViolation: (id: string) => void;
@@ -46,7 +47,7 @@ interface StudentDetailModalProps {
   onToggleViolationResolved: (id: string, resolved: boolean) => void;
 }
 
-export const StudentDetailModal = ({ isOpen, onClose, student, onAddViolation, onDeleteStudent, onDeleteViolation, onUpdateStudent, onToggleViolationResolved }: StudentDetailModalProps) => {
+export const StudentDetailModal = ({ isOpen, onClose, student, isAdmin, onAddViolation, onDeleteStudent, onDeleteViolation, onUpdateStudent, onToggleViolationResolved }: StudentDetailModalProps) => {
   const [openDelete, setOpenDelete] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({ course: "", program: "", year: "" });
@@ -120,27 +121,31 @@ export const StudentDetailModal = ({ isOpen, onClose, student, onAddViolation, o
                   </h3>
                   <p className="text-muted-foreground">{student.studentId}</p>
                 </div>
-                <Button onClick={() => onAddViolation(student)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Violation
-                </Button>
+                {isAdmin && (
+                  <Button onClick={() => onAddViolation(student)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Violation
+                  </Button>
+                )}
               </div>
 
               <div className="flex items-center justify-between pt-4 border-t">
                 <span className="text-sm font-medium text-muted-foreground">Academic Info</span>
-                {isEditing ? (
-                  <div className="flex gap-1">
-                    <Button size="sm" variant="ghost" onClick={saveEdit}>
-                      <Check className="h-4 w-4" />
+                {isAdmin && (
+                  isEditing ? (
+                    <div className="flex gap-1">
+                      <Button size="sm" variant="ghost" onClick={saveEdit}>
+                        <Check className="h-4 w-4" />
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}>
+                        <XIcon className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button size="sm" variant="ghost" onClick={startEdit}>
+                      <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}>
-                      <XIcon className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <Button size="sm" variant="ghost" onClick={startEdit}>
-                    <Pencil className="h-4 w-4" />
-                  </Button>
+                  )
                 )}
               </div>
 
@@ -231,7 +236,7 @@ export const StudentDetailModal = ({ isOpen, onClose, student, onAddViolation, o
                 <ScrollArea className="h-[300px]">
                   <div className="space-y-4">
                     {sortedViolations.map((violation, index) => (
-                      <ViolationItem key={violation._id} violation={violation} isLatest={index === 0}  onDeleteViolation={onDeleteViolation} onToggleViolationResolved={onToggleViolationResolved} />
+                      <ViolationItem key={violation._id} violation={violation} isLatest={index === 0} isAdmin={isAdmin} onDeleteViolation={onDeleteViolation} onToggleViolationResolved={onToggleViolationResolved} />
                     ))}
                   </div>
                 </ScrollArea>
@@ -246,13 +251,15 @@ export const StudentDetailModal = ({ isOpen, onClose, student, onAddViolation, o
         </div>
 
         <div className="flex justify-between pt-4">
-            <Button 
-               variant="destructive" 
-               size="sm"
-               onClick={() => setOpenDelete(true)}
-            >
-               Delete Student
-            </Button>
+            {isAdmin && (
+              <Button
+                 variant="destructive"
+                 size="sm"
+                 onClick={() => setOpenDelete(true)}
+              >
+                 Delete Student
+              </Button>
+            )}
           <Button variant="outline" onClick={onClose}>
             Close
           </Button>
@@ -286,7 +293,7 @@ export const StudentDetailModal = ({ isOpen, onClose, student, onAddViolation, o
   );
 };
 
-const ViolationItem = ({ violation, isLatest, onDeleteViolation, onToggleViolationResolved }: { violation: Violation; isLatest: boolean; onDeleteViolation: (id: string) => void; onToggleViolationResolved: (id: string, resolved: boolean) => void; }) => {
+const ViolationItem = ({ violation, isLatest, isAdmin, onDeleteViolation, onToggleViolationResolved }: { violation: Violation; isLatest: boolean; isAdmin: boolean; onDeleteViolation: (id: string) => void; onToggleViolationResolved: (id: string, resolved: boolean) => void; }) => {
   const [openDelete, setOpenDelete] = useState(false);
 
   const getSeverityColor = (severity: string) => {
@@ -309,9 +316,9 @@ const ViolationItem = ({ violation, isLatest, onDeleteViolation, onToggleViolati
             {violation.severity}
           </Badge>
           <Badge
-            className={`${resolvedColor} cursor-pointer`}
+            className={`${resolvedColor} ${isAdmin ? "cursor-pointer" : ""}`}
             variant="secondary"
-            onClick={() => onToggleViolationResolved(violation._id, !violation.resolved)}
+            onClick={isAdmin ? () => onToggleViolationResolved(violation._id, !violation.resolved) : undefined}
           >
             {violation.resolved ? "Resolved" : "Not Resolved"}
           </Badge>
@@ -322,13 +329,15 @@ const ViolationItem = ({ violation, isLatest, onDeleteViolation, onToggleViolati
         <div className="flex items-center space-x-2 text-sm text-muted-foreground">
           <Calendar className="h-4 w-4" />
           <span>{new Date(violation.dateCommitted).toLocaleDateString()}</span>
-           <Button
-             variant="destructive"
-             size="sm"
-            onClick={() => setOpenDelete(true)}
-            >
-             <Trash />
-           </Button>
+           {isAdmin && (
+             <Button
+               variant="destructive"
+               size="sm"
+              onClick={() => setOpenDelete(true)}
+              >
+               <Trash />
+             </Button>
+           )}
         </div>
       </div>
 

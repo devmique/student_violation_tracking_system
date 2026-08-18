@@ -1,4 +1,4 @@
-import { Search,  LogOut, User, Trash, Upload } from "lucide-react";
+import { Search,  LogOut, User, Trash, Upload, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
@@ -8,6 +8,7 @@ import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { UserRolesModal } from "@/components/users/UserRolesModal";
 
 
 
@@ -38,6 +39,7 @@ export const Header = ({ onSearch, searchQuery }: HeaderProps) => {
     storedUser ? JSON.parse(storedUser) : { username: "Guest", profilePic: "" }
   );
 const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+const [isManageUsersOpen, setIsManageUsersOpen] = useState(false);
 
 const { toast } = useToast();
  // ✅ Upload profile picture
@@ -149,9 +151,15 @@ const { toast } = useToast();
 
           {/* Actions */}
           <div className="flex items-center space-x-3">
-           
+
+            {currentUser.role === "admin" && (
+              <Button onClick={() => setIsManageUsersOpen(true)} variant="ghost" size="icon" title="Manage Users">
+                <Users className="h-4 w-4" />
+              </Button>
+            )}
+
             <ThemeToggle />
-            
+
             <Button onClick={handleLogout} variant="ghost" size="icon">
               <LogOut className="h-4 w-4" />
             </Button>
@@ -214,6 +222,11 @@ const { toast } = useToast();
           </div>
         </DialogContent>
       </Dialog>
+      <UserRolesModal
+        isOpen={isManageUsersOpen}
+        onClose={() => setIsManageUsersOpen(false)}
+        currentUserId={currentUser._id || currentUser.id}
+      />
     </header>
   );
 };
