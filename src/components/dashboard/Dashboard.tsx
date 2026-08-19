@@ -8,9 +8,10 @@ import { StudentCard } from "@/components/students/StudentCard";
 import { StudentFilters } from "@/components/students/StudentFilters";
 import { ViolationModal } from "@/components/violations/ViolationModal";
 import { StudentDetailModal } from "@/components/violations/StudentDetailModal";
-import { StudentWithViolations, Course, Program, ViolationData, StudentData, ViolationStats, ViolationTrendPoint } from "@/types/student";
+import { StudentWithViolations, Course, Program, ViolationData, StudentData, ViolationStats } from "@/types/student";
 import { AuthUser } from "@/types/user";
 import { ViolationsTrendChart } from "./ViolationsTrendChart";
+import { ViolationBreakdownDonuts } from "./ViolationBreakdownDonuts";
 import { useToast } from "@/hooks/use-toast";
 import { StudentModal } from "@/components/students/StudentModal";
 import axios from "axios";
@@ -29,7 +30,6 @@ export const Dashboard = () => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [students, setStudents] = useState<StudentWithViolations[]>([]);
   const [stats, setStats] = useState<ViolationStats | null>(null);
-  const [trend, setTrend] = useState<ViolationTrendPoint[]>([]);
 
   //profile state
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -45,14 +45,10 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api
 
 const student = localStorage.getItem("student");
 
-// Refresh violation stats + monthly trend together
+// Refresh violation stats
 const fetchStats = async () => {
-  const [resStats, resTrend] = await Promise.all([
-    axios.get(`${API_BASE}/violations/stats`, { headers: { Authorization: `Bearer ${token}` } }),
-    axios.get(`${API_BASE}/violations/trend`, { headers: { Authorization: `Bearer ${token}` } }),
-  ]);
+  const resStats = await axios.get(`${API_BASE}/violations/stats`, { headers: { Authorization: `Bearer ${token}` } });
   setStats(resStats.data);
-  setTrend(resTrend.data);
 };
 
 // Upload student profile picture
@@ -123,6 +119,8 @@ if(updated){
       return matchesSearch && matchesCourse && matchesProgram && matchesYear;
     });
   }, [students, searchQuery, selectedCourse, selectedProgram, selectedYear]);
+
+  const allViolations = useMemo(() => students.flatMap((s) => s.violations), [students]);
 
 //fetch students and stats on component mount
 useEffect(() => {
@@ -388,8 +386,15 @@ const handleDeleteViolation = async (id: string) => {
 
         </div>
 
-        <div className="mb-8">
-          <ViolationsTrendChart data={trend} />
+        <div className="mb-8 grid lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <ViolationsTrendChart violations={allViolations} />
+          </div>
+          {stats && (
+            <div className="lg:col-span-1">
+              <ViolationBreakdownDonuts stats={stats} />
+            </div>
+          )}
         </div>
 
         {/* Filters and Content */}
