@@ -44,20 +44,20 @@ export const StudentFilters = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center space-x-2">
-          <Filter className="h-4 w-4 text-muted-foreground" />
+          <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
           <span className="text-sm font-medium text-foreground">Filters</span>
         </div>
         {hasActiveFilters && (
-          <Button variant="ghost" size="sm" onClick={onClearFilters}>
+          <Button variant="ghost" size="sm" onClick={onClearFilters} className="whitespace-nowrap">
             <X className="h-4 w-4 mr-2" />
             Clear All
           </Button>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(min(180px,100%),1fr))]">
         <div className="space-y-2">
           <label className="text-sm font-medium text-muted-foreground">Course</label>
           <Select value={selectedCourse} onValueChange={onCourseChange}>
@@ -111,10 +111,10 @@ export const StudentFilters = ({
         <div className="flex flex-wrap gap-2">
           <span className="text-sm text-muted-foreground">Active filters:</span>
           {selectedCourse !== "All" && (
-            <Badge variant="secondary" className="flex items-center space-x-1">
-              <span>{selectedCourse}</span>
-              <X 
-                className="h-3 w-3 cursor-pointer hover:text-foreground" 
+            <Badge variant="secondary" className="flex items-center space-x-1 max-w-full">
+              <span className="min-w-0 truncate">{selectedCourse}</span>
+              <X
+                className="h-3 w-3 shrink-0 cursor-pointer hover:text-foreground"
                 onClick={() => onCourseChange("All")}
               />
             </Badge>

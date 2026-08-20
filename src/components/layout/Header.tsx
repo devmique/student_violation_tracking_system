@@ -13,8 +13,8 @@ import { UserRolesModal } from "@/components/users/UserRolesModal";
 
 
 interface HeaderProps {
-  onSearch: (query: string) => void;
-  searchQuery: string;
+  onSearch?: (query: string) => void;
+  searchQuery?: string;
 }
 const handleLogout = () =>{
 
@@ -119,16 +119,20 @@ const { toast } = useToast();
           {/* Logo and Title */}
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <div className="w-10 h-10  rounded-lg flex items-center justify-center">
-                <img src={logo} alt="logo" className="cursor-pointer" onClick = {()=>{
+              <button
+                type="button"
+                aria-label="Go to home"
+                className="w-10 h-10 rounded-lg flex items-center justify-center"
+                onClick={() => {
                   if (window.location.pathname === "/") {
-                  window.location.reload();
-                 } else {
-                   navigate("/");
-                 }
-                }} />
-      
-              </div>
+                    window.location.reload();
+                  } else {
+                    navigate("/");
+                  }
+                }}
+              >
+                <img src={logo} alt="Don Bosco College logo" />
+              </button>
               <div>
                 <h1 className="text-xl font-bold text-foreground">DBC Violation Tracker</h1>
                 <p className="text-sm text-muted-foreground">Academic Tracking System</p>
@@ -137,17 +141,19 @@ const { toast } = useToast();
           </div>
 
           {/* Search Bar */}
-          <div className="flex-1 max-w-md mx-8">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Search students by name or ID..."
-                value={searchQuery}
-                onChange={(e) => onSearch(e.target.value)}
-                className="pl-10 transition-smooth focus:shadow-medium"
-              />
+          {onSearch && (
+            <div className="flex-1 max-w-md mx-8">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder="Search students by name or ID..."
+                  value={searchQuery}
+                  onChange={(e) => onSearch(e.target.value)}
+                  className="pl-10 transition-smooth focus:shadow-medium"
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Actions */}
           <div className="flex items-center space-x-3">
@@ -169,26 +175,29 @@ const { toast } = useToast();
           
 
                  {/* Profile dropdown */}
-             <div
+             <button
+              type="button"
+              aria-label="Update profile picture"
               className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center gradient-primary hover:opacity-90 transition-opacity"
               onClick={() => setIsUserModalOpen(true)}
               >
               {currentUser.profilePic ? (
                 <img
-                
                   src={currentUser.profilePic}
-                  alt="User Avatar"
-                  className="w-full h-full object-cover cursor-pointer"
+                  alt=""
+                  className="w-full h-full object-cover"
                 />
               ) : (
                 <User className="h-6 w-6 text-primary-foreground" />
               )}
-            </div>
+            </button>
 
               
               <div className="hidden md:block">
                 <p className="text-sm font-medium">{currentUser.username}</p>
-                <p className="text-xs text-muted-foreground">Vice Dean of Student Affairs</p>
+                <p className="text-xs text-muted-foreground">
+                  {currentUser.role === "admin" ? "Administrator" : "Staff"}
+                </p>
               </div>
             </div>
           </div>

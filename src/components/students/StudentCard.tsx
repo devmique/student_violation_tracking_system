@@ -80,7 +80,7 @@ export const StudentCard = ({ student, isAdmin, onViewDetails, onAddViolation, o
           </div>
           
           {student.violationCount > 0 && (
-            <Badge variant="secondary" className="flex items-center space-x-1">
+            <Badge variant="secondary" className="flex items-center space-x-1 shrink-0">
               <AlertCircle className="h-3 w-3" />
               <span>{student.violationCount}</span>
             </Badge>
