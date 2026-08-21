@@ -11,7 +11,6 @@ interface StatPart {
   label: string;
   value: number;
   textColor: string;
-  barColor: string;
 }
 
 const StatCardShell = ({
@@ -54,46 +53,26 @@ const SingleStat = ({ value, subtitle }: { value?: number; subtitle: string }) =
 const SplitStat = ({ parts }: { parts?: [StatPart, StatPart] }) => {
   if (!parts) {
     return (
-      <>
-        <div className="flex items-baseline gap-4">
-          {[0, 1].map((i) => (
-            <div key={i}>
-              <Skeleton className="h-8 w-10" />
-              <Skeleton className="h-3 w-14 mt-1.5" />
-            </div>
-          ))}
-        </div>
-        <Skeleton className="h-1.5 w-full mt-3 rounded-full" />
-      </>
-    );
-  }
-
-  const total = parts[0].value + parts[1].value;
-
-  return (
-    <>
       <div className="flex items-baseline gap-4">
-        {parts.map((part) => (
-          <div key={part.label}>
-            <div className={`text-2xl font-bold ${part.textColor}`}>{part.value}</div>
-            <p className="text-xs text-muted-foreground mt-0.5">{part.label}</p>
+        {[0, 1].map((i) => (
+          <div key={i}>
+            <Skeleton className="h-8 w-10" />
+            <Skeleton className="h-3 w-14 mt-1.5" />
           </div>
         ))}
       </div>
-      <div className="flex gap-0.5 mt-3 h-1.5">
-        {total === 0 ? (
-          <div className="w-full rounded-full bg-muted" />
-        ) : (
-          parts.map((part) => (
-            <div
-              key={part.label}
-              className={`${part.barColor} first:rounded-l-full last:rounded-r-full`}
-              style={{ width: `${(part.value / total) * 100}%` }}
-            />
-          ))
-        )}
-      </div>
-    </>
+    );
+  }
+
+  return (
+    <div className="flex items-baseline gap-4">
+      {parts.map((part) => (
+        <div key={part.label}>
+          <div className={`text-2xl font-bold ${part.textColor}`}>{part.value}</div>
+          <p className="text-xs text-muted-foreground mt-0.5">{part.label}</p>
+        </div>
+      ))}
+    </div>
   );
 };
 
@@ -111,8 +90,8 @@ export const StatsCards = ({ stats }: StatsCardsProps) => (
       <SplitStat
         parts={
           stats && [
-            { label: "Major", value: stats.major, textColor: "text-danger", barColor: "bg-danger" },
-            { label: "Minor", value: stats.minor, textColor: "text-warning", barColor: "bg-warning" },
+            { label: "Major", value: stats.major, textColor: "text-danger" },
+            { label: "Minor", value: stats.minor, textColor: "text-warning" },
           ]
         }
       />
@@ -122,8 +101,8 @@ export const StatsCards = ({ stats }: StatsCardsProps) => (
       <SplitStat
         parts={
           stats && [
-            { label: "Resolved", value: stats.resolved, textColor: "text-success", barColor: "bg-success" },
-            { label: "Unresolved", value: stats.unresolved, textColor: "text-danger", barColor: "bg-danger" },
+            { label: "Resolved", value: stats.resolved, textColor: "text-success" },
+            { label: "Unresolved", value: stats.unresolved, textColor: "text-danger" },
           ]
         }
       />

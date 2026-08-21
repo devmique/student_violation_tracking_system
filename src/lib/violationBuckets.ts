@@ -1,4 +1,4 @@
-import { Violation } from "@/types/student";
+import { Course, StudentWithViolations, Violation, ViolationSeverity } from "@/types/student";
 
 export type Preset = "week" | "month" | "year" | "all";
 
@@ -110,4 +110,70 @@ export const bucketViolations = <T,>(
     cursor.setMonth(cursor.getMonth() + 1);
   }
   return months;
+};
+
+const groupByStudentId = (violations: Violation[]): Map<string, Violation[]> => {
+  const groups = new Map<string, Violation[]>();
+  for (const v of violations) {
+    const bucket = groups.get(v.studentId);
+    if (bucket) bucket.push(v);
+    else groups.set(v.studentId, [v]);
+  }
+  return groups;
+};
+
+/** What a violation of each severity is worth when ranking students. Tune the ratio here. */
+export const SEVERITY_WEIGHT: Record<ViolationSeverity, number> = { Major: 3, Minor: 1 };
+
+export interface StudentViolationCount {
+  student: StudentWithViolations;
+  total: number;
+  major: number;
+  minor: number;
+  score: number;
+}
+
+/** Students ranked by severity score, worst first. Pass an already period-filtered list. */
+export const rankStudentsByViolations = (
+  students: StudentWithViolations[],
+  violations: Violation[],
+  limit = 5
+): StudentViolationCount[] => {
+  const byStudent = groupByStudentId(violations);
+
+  return students
+    .map((student) => {
+      const own = byStudent.get(student.studentId) ?? [];
+      const major = own.filter((v) => v.severity === "Major").length;
+      const minor = own.filter((v) => v.severity === "Minor").length;
+
+      return {
+        student,
+        total: own.length,
+        major,
+        minor,
+        score: major * SEVERITY_WEIGHT.Major + minor * SEVERITY_WEIGHT.Minor,
+      };
+    })
+    .filter((row) => row.total > 0)
+    .sort((a, b) => b.score - a.score || b.total - a.total)
+    .slice(0, limit);
+};
+
+/** Violation counts per course, highest first. Courses with none are dropped. */
+export const countByCourse = (
+  students: StudentWithViolations[],
+  violations: Violation[]
+): { course: Course; count: number }[] => {
+  const byStudent = groupByStudentId(violations);
+  const counts = new Map<Course, number>();
+
+  for (const student of students) {
+    const own = byStudent.get(student.studentId)?.length ?? 0;
+    if (own > 0) counts.set(student.course, (counts.get(student.course) ?? 0) + own);
+  }
+
+  return [...counts.entries()]
+    .map(([course, count]) => ({ course, count }))
+    .sort((a, b) => b.count - a.count);
 };

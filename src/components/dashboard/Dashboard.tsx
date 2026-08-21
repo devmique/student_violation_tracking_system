@@ -4,7 +4,8 @@ import { SidebarNav } from "@/components/layout/SidebarNav";
 import { StatsCards } from "./StatsCards";
 import { StudentWithViolations } from "@/types/student";
 import { TrendAreaChart, TrendSeries } from "./TrendAreaChart";
-import { ViolationDonutCard } from "./ViolationDonutCard";
+import { TopStudentsCard } from "./TopStudentsCard";
+import { CourseBreakdownCard } from "./CourseBreakdownCard";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertTriangle } from "lucide-react";
@@ -58,9 +59,9 @@ export const Dashboard = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <div className="container mx-auto px-6 flex flex-col md:flex-row">
+      <div className="flex flex-col md:flex-row">
         <SidebarNav />
-        <div className="flex-1 min-w-0 py-8 md:pl-6">
+        <div className="flex-1 min-w-0 container mx-auto px-6 py-8">
           <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
             <h2 className="text-2xl font-semibold text-foreground">Dashboard</h2>
             <ToggleGroup
@@ -93,7 +94,7 @@ export const Dashboard = () => {
                 <StatsCards stats={stats} />
               </div>
 
-              {/* Each row pairs a trend with the donut for the same dimension. */}
+              {/* Left column trends over time, right column the who/which-cohort cuts. */}
               <div className="mb-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
                 <TrendAreaChart
                   title="Violations Over Time"
@@ -102,14 +103,10 @@ export const Dashboard = () => {
                   preset={preset}
                   loading={loading}
                 />
-                <ViolationDonutCard
-                  title="Severity"
-                  data={
-                    stats && [
-                      { key: "minor", label: "Minor", value: stats.minor, color: "hsl(var(--warning))" },
-                      { key: "major", label: "Major", value: stats.major, color: "hsl(var(--danger))" },
-                    ]
-                  }
+                <CourseBreakdownCard
+                  students={students}
+                  violations={periodViolations}
+                  loading={loading}
                 />
 
                 <TrendAreaChart
@@ -119,14 +116,10 @@ export const Dashboard = () => {
                   preset={preset}
                   loading={loading}
                 />
-                <ViolationDonutCard
-                  title="Resolution"
-                  data={
-                    stats && [
-                      { key: "resolved", label: "Resolved", value: stats.resolved, color: "hsl(var(--success))" },
-                      { key: "unresolved", label: "Unresolved", value: stats.unresolved, color: "hsl(var(--danger))" },
-                    ]
-                  }
+                <TopStudentsCard
+                  students={students}
+                  violations={periodViolations}
+                  loading={loading}
                 />
               </div>
             </>
