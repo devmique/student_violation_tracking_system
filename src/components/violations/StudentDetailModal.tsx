@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -315,13 +316,29 @@ const ViolationItem = ({ violation, isLatest, isAdmin, onDeleteViolation, onTogg
           <Badge className={getSeverityColor(violation.severity)} variant="secondary">
             {violation.severity}
           </Badge>
-          <Badge
-            className={`${resolvedColor} ${isAdmin ? "cursor-pointer" : ""}`}
-            variant="secondary"
-            onClick={isAdmin ? () => onToggleViolationResolved(violation._id, !violation.resolved) : undefined}
-          >
-            {violation.resolved ? "Resolved" : "Not Resolved"}
-          </Badge>
+          {isAdmin ? (
+            <label
+              className="flex items-center gap-1.5 cursor-pointer select-none"
+              title={violation.resolved ? "Uncheck to mark as not resolved" : "Check to mark as resolved"}
+            >
+              <Checkbox
+                checked={violation.resolved}
+                onCheckedChange={(checked) =>
+                  onToggleViolationResolved(violation._id, checked === true)
+                }
+                aria-label="Resolved"
+              />
+              <Badge className={`gap-1 ${resolvedColor}`} variant="secondary">
+                {violation.resolved ? <Check className="h-3 w-3" /> : <XIcon className="h-3 w-3" />}
+                {violation.resolved ? "Resolved" : "Not Resolved"}
+              </Badge>
+            </label>
+          ) : (
+            <Badge className={`gap-1 ${resolvedColor}`} variant="secondary">
+              {violation.resolved ? <Check className="h-3 w-3" /> : <XIcon className="h-3 w-3" />}
+              {violation.resolved ? "Resolved" : "Not Resolved"}
+            </Badge>
+          )}
           {isLatest && (
             <Badge variant="outline" className="text-xs">Latest</Badge>
           )}
@@ -331,11 +348,14 @@ const ViolationItem = ({ violation, isLatest, isAdmin, onDeleteViolation, onTogg
           <span>{new Date(violation.dateCommitted).toLocaleDateString()}</span>
            {isAdmin && (
              <Button
-               variant="destructive"
-               size="sm"
-              onClick={() => setOpenDelete(true)}
+               variant="ghost"
+               size="icon"
+               aria-label="Delete violation"
+               title="Delete violation"
+               className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+               onClick={() => setOpenDelete(true)}
               >
-               <Trash />
+               <Trash className="h-4 w-4" />
              </Button>
            )}
         </div>

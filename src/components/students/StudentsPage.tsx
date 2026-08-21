@@ -94,6 +94,17 @@ if(updated){
   setProfileStudent(updated)
 }
 },[students])
+
+// Same for the open detail modal — it renders selectedStudent, not the list
+useEffect(() => {
+  if (!selectedStudent) return;
+
+  const updated = students.find((s) => s._id === selectedStudent._id);
+  if (updated && updated !== selectedStudent) {
+    setSelectedStudent(updated);
+  }
+}, [students]);
+
   // Filter students based on search and filters
   const filteredStudents = useMemo(() => {
     return students.filter(student => {
@@ -276,23 +287,35 @@ const handleUpdateStudent = async (id: string, data: { course: string; program: 
 
 //toggle violation resolved status
 const handleToggleViolationResolved = async (id: string, resolved: boolean) => {
+  const applyResolved = (value: boolean) =>
+    setStudents((prev) =>
+      prev.map((student) => ({
+        ...student,
+        violations: student.violations.map((v) =>
+          v._id === id ? { ...v, resolved: value } : v
+        ),
+      }))
+    );
+
+  applyResolved(resolved); // optimistic — reverted below if the request fails
+
   try {
     const res = await axios.put(
       `${API_BASE}/violations/${id}`,
       { resolved },
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    const updated = res.data;
 
-    setStudents((prev) =>
-      prev.map((student) => ({
-        ...student,
-        violations: student.violations.map((v) =>
-          v._id === id ? { ...v, resolved: updated.resolved } : v
-        ),
-      }))
-    );
+    if (res.data?.resolved !== resolved) applyResolved(!!res.data?.resolved);
+
+    toast({
+      title: resolved ? "Marked as Resolved" : "Marked as Not Resolved",
+      description: resolved
+        ? "The violation is now marked resolved."
+        : "The violation is back to unresolved.",
+    });
   } catch (err) {
+    applyResolved(!resolved);
     console.error("Toggle violation resolved error:", err);
     toast({
       title: "Error",
@@ -336,9 +359,9 @@ const handleDeleteViolation = async (id: string) => {
     <div className="min-h-screen bg-background">
       <Header searchQuery={searchQuery} onSearch={setSearchQuery} />
 
-      <div className="container mx-auto px-6 flex flex-col md:flex-row">
+      <div className="flex flex-col md:flex-row">
         <SidebarNav />
-        <div className="flex-1 min-w-0 py-8 md:pl-6">
+        <div className="flex-1 min-w-0 container mx-auto px-6 py-8">
         {/* Filters and Content */}
         <div className="grid gap-8 xl:grid-cols-[260px_minmax(0,1fr)]">
           {/* Sidebar with Filters */}
