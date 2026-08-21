@@ -83,17 +83,18 @@ export const Login = () => {
         password: regPassword,
       });
 
+      // Registering logs you straight in — same as the login handler
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
       toast({
         title: "Registration successful",
         description: `Welcome, ${data.user.username}!`,
       });
-     setUsername("");
+      setUsername("");
       setRegEmail("");
       setRegPassword("");
-      // Switch to login tab automatically after successful register
-      setEmail(regEmail);
-      setPassword(regPassword);
-      window.location.href = "/login"; 
+      window.location.href = "/dashboard";
     } catch (err: any) {
       toast({
         title: "Registration failed",

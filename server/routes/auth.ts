@@ -9,10 +9,13 @@ router.post("/register", async (req: Request, res: Response) => {
  
   try {
     const { username, email, password } = req.body;
-    const existingUser = await User.findOne({ email });
-if (existingUser) {
-  return res.status(400).json({ message: "Email already registered" });
-}
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    if (existingUser) {
+      return res.status(400).json({
+        message:
+          existingUser.email === email ? "Email already registered" : "Username already taken",
+      });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -25,8 +28,22 @@ if (existingUser) {
 
   
   
+    const token = jwt.sign(
+      { id: newUser._id, username: newUser.username, role: newUser.role },
+      process.env.JWT_SECRET as string,
+      { expiresIn: "7d" }
+    );
+
     res.status(201).json({
       message: "User registered successfully",
+      token,
+      user: {
+        id: newUser._id,
+        username: newUser.username,
+        email: newUser.email,
+        profilePic: newUser.profilePic,
+        role: newUser.role,
+      },
     });
   }catch (err: any) {
   console.error("REGISTER ERROR:", err);
