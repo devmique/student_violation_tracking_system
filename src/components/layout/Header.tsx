@@ -1,116 +1,23 @@
-import { Search,  LogOut, User, Trash, Upload, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Search, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "@/assets/DON-BOSCO-COLLEGE-LOGO.png"
-import axios from "axios";
-import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
-import { UserRolesModal } from "@/components/users/UserRolesModal";
 
-
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
   searchQuery?: string;
 }
-const handleLogout = () =>{
-
-  if (!window.confirm("Are you sure you want to logout?")) return;
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
-  window.location.href = "/login"
-}
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
-
-
 
 export const Header = ({ onSearch, searchQuery }: HeaderProps) => {
   const navigate = useNavigate();
   const storedUser = localStorage.getItem("user");
-    const token = localStorage.getItem("token");
-
-
-
-  const [currentUser, setCurrentUser] = useState(
-    storedUser ? JSON.parse(storedUser) : { username: "Guest", profilePic: "" }
-  );
-const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-const [isManageUsersOpen, setIsManageUsersOpen] = useState(false);
-
-const { toast } = useToast();
- // ✅ Upload profile picture
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.[0]) return;
-
-
-    const formData = new FormData();
-    formData.append("profilePic", e.target.files[0]);
-
-    try {
-      const { data } = await axios.post(
-        `${API_BASE}/profile/upload/${currentUser._id || currentUser.id}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      localStorage.setItem("user", JSON.stringify(data.user));
-      setCurrentUser(data.user);
-
-      toast({ title: "Profile updated", description: "Profile picture uploaded successfully" });
-       setIsUserModalOpen(false); 
-    } catch (err: any) {
-      toast({
-        title: "Upload failed",
-        description: err.response?.data?.message || "Error uploading profile picture",
-        variant: "destructive",
-      });
-    }
-  };
-
-  // ✅ Delete profile picture
-  const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete your profile picture?")) return;
-
-    try {
-      const { data } = await axios.delete(
-        `${API_BASE}/profile/delete/${currentUser._id || currentUser.id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      localStorage.setItem("user", JSON.stringify(data.user));
-      setCurrentUser(data.user);
-
-      toast({ title: "Deleted", description: "Profile picture removed" });
-    } catch (err: any) {
-      toast({
-        title: "Delete failed",
-        description: err.response?.data?.message || "Error deleting profile picture",
-        variant: "destructive",
-      });
-    }
-  };
-
-    const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsUserModalOpen(false);
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-    if(!fileInput?.files?.[0]) {
-      toast({ title: "No file selected", description: "Please select a file to upload", variant: "destructive" });
-      return;
-    }
-    
-  };
+  const currentUser = storedUser ? JSON.parse(storedUser) : { username: "Guest", profilePic: "" };
+  const profilePicUrl = currentUser.profilePic
+    ? `${API_BASE.replace("/api", "")}${currentUser.profilePic}`
+    : null;
 
   return (
     <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b shadow-soft">
@@ -157,42 +64,21 @@ const { toast } = useToast();
 
           {/* Actions */}
           <div className="flex items-center space-x-3">
-
-            {currentUser.role === "admin" && (
-              <Button onClick={() => setIsManageUsersOpen(true)} variant="ghost" size="icon" title="Manage Users">
-                <Users className="h-4 w-4" />
-              </Button>
-            )}
-
             <ThemeToggle />
 
-            <Button onClick={handleLogout} variant="ghost" size="icon">
-              <LogOut className="h-4 w-4" />
-            </Button>
-
             <div className="flex items-center space-x-2 pl-3 border-l">
-                
-          
-
-                 {/* Profile dropdown */}
-             <button
-              type="button"
-              aria-label="Update profile picture"
-              className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center gradient-primary hover:opacity-90 transition-opacity"
-              onClick={() => setIsUserModalOpen(true)}
+              <Link
+                to="/accounts/profile"
+                aria-label="Go to your profile"
+                className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center gradient-primary hover:opacity-90 transition-opacity"
               >
-              {currentUser.profilePic ? (
-                <img
-                  src={currentUser.profilePic}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <User className="h-6 w-6 text-primary-foreground" />
-              )}
-            </button>
+                {profilePicUrl ? (
+                  <img src={profilePicUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <User className="h-6 w-6 text-primary-foreground" />
+                )}
+              </Link>
 
-              
               <div className="hidden md:block">
                 <p className="text-sm font-medium">{currentUser.username}</p>
                 <p className="text-xs text-muted-foreground">
@@ -203,39 +89,6 @@ const { toast } = useToast();
           </div>
         </div>
       </div>
-      {/* ADDED: Profile modal */}
-      <Dialog open={isUserModalOpen} onOpenChange={setIsUserModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Update Profile Picture</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col gap-4">
-            {currentUser.profilePic && (
-            <img
-              src={currentUser.profilePic || ""}
-              alt="Profile"
-              className="w-24 h-24 rounded-full object-cover mx-auto"
-            />
-            )}
-             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <input type="file" accept="image/*" onChange={handleUpload} />
-              <div className="flex justify-between gap-2">
-            <Button type="submit">Upload</Button>
-            {currentUser.profilePic && (
-              <Button variant="destructive" onClick={handleDelete}>
-                Delete Picture
-              </Button>
-            )}
-            </div>
-            </form>
-          </div>
-        </DialogContent>
-      </Dialog>
-      <UserRolesModal
-        isOpen={isManageUsersOpen}
-        onClose={() => setIsManageUsersOpen(false)}
-        currentUserId={currentUser._id || currentUser.id}
-      />
     </header>
   );
 };

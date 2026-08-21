@@ -9,6 +9,8 @@ import NotFound from "./pages/NotFound";
 import { ThemeProvider } from "@/components/theme/ThemeProvider"; 
 import { Dashboard } from "./components/dashboard/Dashboard";
 import { StudentsPage } from "./components/students/StudentsPage";
+import { ProfilePage } from "./components/accounts/ProfilePage";
+import { ManageUsersPage } from "./components/accounts/ManageUsersPage";
 const queryClient = new QueryClient();
 const token = localStorage.getItem("token");
 
@@ -41,6 +43,15 @@ const App = () => (
             path="students"
             element={<ProtectedRoute element={<StudentsPage />} />}
            />
+          <Route path="accounts" element={<Navigate to="/accounts/profile" replace />} />
+          <Route
+            path="accounts/profile"
+            element={<ProtectedRoute element={<ProfilePage />} />}
+          />
+          <Route
+            path="accounts/users"
+            element={<ProtectedRoute element={<ManageUsersPage />} />}
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
         </ThemeProvider>
