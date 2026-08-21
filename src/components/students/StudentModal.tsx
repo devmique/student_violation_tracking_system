@@ -51,12 +51,35 @@ export const StudentModal = ({
     year: "",
   });
 
+  // The three Selects aren't native <select>, so `required` can't cover them
+  const [showErrors, setShowErrors] = useState(false);
+
   const handleChange = (name: string, value: string) => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = () => {
+  const missing = (field: "course" | "program" | "year") => showErrors && !formData[field];
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.course || !formData.program || !formData.year) {
+      setShowErrors(true);
+      return;
+    }
+
     onAddStudent(formData);
+    setFormData({
+      studentId: "",
+      firstName: "",
+      middlename: "",
+      lastName: "",
+      email: "",
+      course: "",
+      program: "",
+      year: "",
+    });
+    setShowErrors(false);
     onClose();
   };
 
@@ -67,42 +90,51 @@ export const StudentModal = ({
           <DialogTitle>Add New Student</DialogTitle>
         </DialogHeader>
 
+        <form onSubmit={handleSubmit}>
         <div className="space-y-3">
                <Input
-            placeholder="Student ID"
+            required
+            placeholder="Student ID *"
             value={formData.studentId}
             onChange={(e) => handleChange("studentId", e.target.value)}
           />
           <Input
-            placeholder="First Name"
+            required
+            placeholder="First Name *"
             value={formData.firstName}
             onChange={(e) => handleChange("firstName", e.target.value)}
             />
           <Input
-            placeholder="Middle Name"
+            placeholder="Middle Name (optional)"
             value={formData.middlename}
             onChange={(e) => handleChange("middlename", e.target.value) }
             />
           <Input
-            placeholder="Last Name"
+            required
+            placeholder="Last Name *"
             value={formData.lastName}
             onChange={(e) => handleChange("lastName", e.target.value)}
             />
           <Input
-            placeholder="Email"
+            required
+            type="email"
+            placeholder="Email *"
             value={formData.email}
             onChange={(e) => handleChange("email", e.target.value)}
        />
           {/* Course Select */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-muted-foreground">
-              Course
+              Course *
             </label>
             <Select
               value={formData.course}
               onValueChange={(val) => handleChange("course", val)}
             >
-              <SelectTrigger>
+              <SelectTrigger
+                aria-invalid={missing("course")}
+                className={missing("course") ? "border-destructive" : undefined}
+              >
                 <SelectValue placeholder="Select course" />
               </SelectTrigger>
               <SelectContent>
@@ -113,18 +145,22 @@ export const StudentModal = ({
                 ))}
               </SelectContent>
             </Select>
+            {missing("course") && <p className="text-xs text-destructive">Required</p>}
           </div>
 
           {/* Program Select */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-muted-foreground">
-              Program
+              Program *
             </label>
             <Select
               value={formData.program}
               onValueChange={(val) => handleChange("program", val)}
             >
-              <SelectTrigger>
+              <SelectTrigger
+                aria-invalid={missing("program")}
+                className={missing("program") ? "border-destructive" : undefined}
+              >
                 <SelectValue placeholder="Select program" />
               </SelectTrigger>
               <SelectContent>
@@ -135,18 +171,22 @@ export const StudentModal = ({
                 ))}
               </SelectContent>
             </Select>
+            {missing("program") && <p className="text-xs text-destructive">Required</p>}
           </div>
 
           {/* Year Select */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-muted-foreground">
-              Year Level
+              Year Level *
             </label>
             <Select
               value={formData.year}
               onValueChange={(val) => handleChange("year", val)}
             >
-              <SelectTrigger>
+              <SelectTrigger
+                aria-invalid={missing("year")}
+                className={missing("year") ? "border-destructive" : undefined}
+              >
                 <SelectValue placeholder="Select year" />
               </SelectTrigger>
               <SelectContent>
@@ -157,15 +197,17 @@ export const StudentModal = ({
                 ))}
               </SelectContent>
             </Select>
+            {missing("year") && <p className="text-xs text-destructive">Required</p>}
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+        <DialogFooter className="mt-4">
+          <Button type="button" variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>Add Student</Button>
+          <Button type="submit">Add Student</Button>
         </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
